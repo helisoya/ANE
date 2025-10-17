@@ -1,6 +1,9 @@
 #pragma once
 
 #include "ANED3D.h"
+#include "ANECamera.h"
+#include "ANEModel.h"
+#include "ANEShader.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -23,5 +26,8 @@ class ANEApplication
 
 	private:
 		ANED3D* m_Direct3D;
+		ANECamera* m_Camera;
+		ANEModel* m_Model;
+		ANEShader* m_ColorShader;
 };
 

@@ -128,19 +128,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ANEApplication.h" />
+    <ClInclude Include="ANECamera.h" />
     <ClInclude Include="ANED3D.h" />
     <ClInclude Include="ANEInput.h" />
+    <ClInclude Include="ANEModel.h" />
     <ClInclude Include="ANESystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ANEShader.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ANEApplication.cpp" />
+    <ClCompile Include="ANECamera.cpp" />
     <ClCompile Include="ANED3D.cpp" />
     <ClCompile Include="ANEInput.cpp" />
+    <ClCompile Include="ANEModel.cpp" />
     <ClCompile Include="ANESystem.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ANEShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ANE.rc" />
@@ -148,6 +154,10 @@
   <ItemGroup>
     <Image Include="ANE.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="resources\shaders\color.ps" />
+    <Text Include="resources\shaders\color.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
