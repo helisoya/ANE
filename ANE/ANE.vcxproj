@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{8ead31b2-5ce4-4f47-b931-922ba472bc99}</ProjectGuid>
     <RootNamespace>ANE</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -128,11 +128,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ANEApplication.h" />
+    <ClInclude Include="ANEBuffer.h" />
     <ClInclude Include="ANECamera.h" />
     <ClInclude Include="ANED3D.h" />
     <ClInclude Include="ANEInput.h" />
     <ClInclude Include="ANEModel.h" />
     <ClInclude Include="ANESystem.h" />
+    <ClInclude Include="ANETexture.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ANEShader.h" />
@@ -140,11 +142,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ANEApplication.cpp" />
+    <ClCompile Include="ANEBuffer.cpp" />
     <ClCompile Include="ANECamera.cpp" />
     <ClCompile Include="ANED3D.cpp" />
     <ClCompile Include="ANEInput.cpp" />
     <ClCompile Include="ANEModel.cpp" />
     <ClCompile Include="ANESystem.cpp" />
+    <ClCompile Include="ANETexture.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ANEShader.cpp" />
   </ItemGroup>
@@ -156,8 +160,8 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resources\shaders\color.ps" />
-    <Text Include="resources\shaders\color.vs" />
+    <Text Include="resources\shaders\default.ps" />
+    <Text Include="resources\shaders\default.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

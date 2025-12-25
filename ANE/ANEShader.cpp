@@ -29,14 +29,14 @@ bool ANEShader::Initialize(ID3D11Device* device, HWND hwnd)
 
 
 	// Set the filename of the vertex shader.
-	error = wcscpy_s(vsFilename, 128, L"../ANE/resources/shaders/color.vs");
+	error = wcscpy_s(vsFilename, 128, L"../ANE/resources/shaders/default.vs");
 	if (error != 0)
 	{
 		return false;
 	}
 
 	// Set the filename of the pixel shader.
-	error = wcscpy_s(psFilename, 128, L"../ANE/resources/shaders/color.ps");
+	error = wcscpy_s(psFilename, 128, L"../ANE/resources/shaders/default.ps");
 	if (error != 0)
 	{
 		return false;
@@ -155,9 +155,9 @@ bool ANEShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilen
 	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[0].InstanceDataStepRate = 0;
 
-	polygonLayout[1].SemanticName = "COLOR";
+	polygonLayout[1].SemanticName = "TEXCOORD";
 	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
 	polygonLayout[1].InputSlot = 0;
 	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;

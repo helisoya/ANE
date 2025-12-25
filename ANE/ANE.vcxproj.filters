@@ -48,6 +48,12 @@
     <ClInclude Include="ANECamera.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="ANEBuffer.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="ANETexture.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -74,6 +80,12 @@
     <ClCompile Include="ANECamera.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="ANEBuffer.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ANETexture.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ANE.rc">
@@ -89,10 +101,10 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="resources\shaders\color.vs">
+    <Text Include="resources\shaders\default.vs">
       <Filter>Shaders</Filter>
     </Text>
-    <Text Include="resources\shaders\color.ps">
+    <Text Include="resources\shaders\default.ps">
       <Filter>Shaders</Filter>
     </Text>
   </ItemGroup>

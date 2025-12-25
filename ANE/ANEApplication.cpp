@@ -40,7 +40,9 @@ bool ANEApplication::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// Create and initialize the model object.
 	m_Model = new ANEModel;
 
-	result = m_Model->Initialize(m_Direct3D->GetDevice());
+	char textureFilename[128];
+	strcpy_s(textureFilename, "../ANE/resources/textures/debug.tga");
+	result = m_Model->Initialize(m_Direct3D->GetDevice(),m_Direct3D->GetDeviceContext(), textureFilename);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
