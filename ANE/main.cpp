@@ -9,7 +9,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	bool result;
 
 	int argsCount;
-	
+
 	LPWSTR* argList = CommandLineToArgvW(GetCommandLine(), &argsCount);
 
 	if (argsCount != 2) {
