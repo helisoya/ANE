@@ -26,7 +26,7 @@ void ANECamera::SetPosition(float x, float y, float z)
 	m_positionX = x;
 	m_positionY = y;
 	m_positionZ = z;
-	return;
+	
 }
 
 
@@ -35,7 +35,7 @@ void ANECamera::SetRotation(float x, float y, float z)
 	m_rotationX = x;
 	m_rotationY = y;
 	m_rotationZ = z;
-	return;
+	
 }
 
 XMFLOAT3 ANECamera::GetPosition()
@@ -98,12 +98,10 @@ void ANECamera::Render()
 
 	// Finally create the view matrix from the three updated vectors.
 	m_viewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
-
-	return;
 }
 
 void ANECamera::GetViewMatrix(XMMATRIX& viewMatrix)
 {
 	viewMatrix = m_viewMatrix;
-	return;
+	
 }

@@ -1,7 +1,8 @@
 #include "ANEShader.h"
 
+#include "ANEVertexLayout.h"
 
-ANEShader::ANEShader()
+ANEShader::ANEShader(std::wstring shaderName) : m_shaderName(shaderName)
 {
 	m_vertexShader = 0;
 	m_pixelShader = 0;
@@ -10,40 +11,21 @@ ANEShader::ANEShader()
 }
 
 
-ANEShader::ANEShader(const ANEShader& other)
-{
-}
-
-
 ANEShader::~ANEShader()
 {
 }
 
 
-bool ANEShader::Initialize(ID3D11Device* device, HWND hwnd)
+bool ANEShader::Initialize(ID3D11Device* device, HWND hwnd, const D3D11_INPUT_ELEMENT_DESC* layoutElements, UINT layoutElementsNumber)
 {
 	bool result;
-	wchar_t vsFilename[128];
-	wchar_t psFilename[128];
-	int error;
-
-
-	// Set the filename of the vertex shader.
-	error = wcscpy_s(vsFilename, 128, L"../ANE/resources/shaders/default.vs");
-	if (error != 0)
-	{
-		return false;
-	}
-
-	// Set the filename of the pixel shader.
-	error = wcscpy_s(psFilename, 128, L"../ANE/resources/shaders/default.ps");
-	if (error != 0)
-	{
-		return false;
-	}
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, vsFilename, psFilename);
+	result = InitializeShader(device, hwnd, 
+		(std::wstring(L"../ANE/resources/shaders/") + m_shaderName + L".vs").c_str(),
+		(std::wstring(L"../ANE/resources/shaders/") + m_shaderName + L".ps").c_str(),
+		layoutElements,
+		layoutElementsNumber);
 	if (!result)
 	{
 		return false;
@@ -77,14 +59,12 @@ bool ANEShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMAT
 	return true;
 }
 
-bool ANEShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool ANEShader::InitializeShader(ID3D11Device* device, HWND hwnd,const WCHAR* vsFilename,const WCHAR* psFilename, const D3D11_INPUT_ELEMENT_DESC* layoutElements, UINT layoutElementsNumber)
 {
 	HRESULT result;
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
 	ID3D10Blob* pixelShaderBuffer;
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
-	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 
 
@@ -94,7 +74,7 @@ bool ANEShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilen
 	pixelShaderBuffer = 0;
 
 	// Compile the vertex shader code.
-	result = D3DCompileFromFile(vsFilename, NULL, NULL, "ColorVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+	result = D3DCompileFromFile(vsFilename, NULL, NULL, "Main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 		&vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
@@ -113,7 +93,7 @@ bool ANEShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilen
 	}
 
 	// Compile the pixel shader code.
-	result = D3DCompileFromFile(psFilename, NULL, NULL, "ColorPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+	result = D3DCompileFromFile(psFilename, NULL, NULL, "Main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 		&pixelShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
@@ -145,29 +125,9 @@ bool ANEShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilen
 		return false;
 	}
 
-	// Create the vertex input layout description.
-	// This setup needs to match the VertexType stucture in the ModelClass and in the shader.
-	polygonLayout[0].SemanticName = "POSITION";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = 0;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
-
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
-
-	// Get a count of the elements in the layout.
-	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
 	// Create the vertex input layout.
-	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
+	result = device->CreateInputLayout(layoutElements, layoutElementsNumber, vertexShaderBuffer->GetBufferPointer(),
 		vertexShaderBuffer->GetBufferSize(), &m_layout);
 	if (FAILED(result))
 	{
@@ -231,7 +191,7 @@ void ANEShader::ShutdownShader()
 	}
 }
 
-void ANEShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+void ANEShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,const WCHAR* shaderFilename)
 {
 	char* compileErrors;
 	unsigned long long bufferSize, i;
@@ -245,6 +205,7 @@ void ANEShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WC
 	bufferSize = errorMessage->GetBufferSize();
 
 	// Open a file to write the error message to.
+
 	fout.open("shader-error.txt");
 
 	// Write out the error message.
@@ -263,7 +224,7 @@ void ANEShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WC
 	// Pop a message up on the screen to notify the user to check the text file for compile errors.
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 
-	return;
+	
 }
 
 bool ANEShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix,

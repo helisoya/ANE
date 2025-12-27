@@ -6,15 +6,11 @@ ANESystem::ANESystem()
 	m_Application = 0;
 }
 
-ANESystem::ANESystem(const ANESystem& system)
-{
-}
-
 ANESystem::~ANESystem()
 {
 }
 
-bool ANESystem::Initialize()
+bool ANESystem::Initialize(ApplicationMode mode)
 {
 	int screenWidth, screenHeight;
 	bool result;
@@ -35,7 +31,7 @@ bool ANESystem::Initialize()
 	// Create and initialize the application class object.  This object will handle rendering all the graphics for this application.
 	m_Application = new ANEApplication;
 
-	result = m_Application->Initialize(screenWidth, screenHeight, m_hwnd);
+	result = m_Application->Initialize(screenWidth, screenHeight, m_hwnd, mode);
 	if (!result)
 	{
 		return false;

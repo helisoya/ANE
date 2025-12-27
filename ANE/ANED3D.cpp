@@ -413,13 +413,10 @@ void ANED3D::BeginScene(float red, float green, float blue, float alpha)
 	color[2] = blue;
 	color[3] = alpha;
 
-	// Clear the back buffer.
 	m_deviceContext->ClearRenderTargetView(m_renderTargetView, color);
-
-	// Clear the depth buffer.
 	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	return;
+	m_deviceContext->RSSetViewports(1, &m_viewport);
+	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 }
 
 void ANED3D::EndScene()
@@ -436,7 +433,7 @@ void ANED3D::EndScene()
 		m_swapChain->Present(0, 0);
 	}
 
-	return;
+	
 }
 
 ID3D11Device* ANED3D::GetDevice()
@@ -453,43 +450,26 @@ ID3D11DeviceContext* ANED3D::GetDeviceContext()
 void ANED3D::GetProjectionMatrix(XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
-	return;
+	
 }
 
 
 void ANED3D::GetWorldMatrix(XMMATRIX& worldMatrix)
 {
 	worldMatrix = m_worldMatrix;
-	return;
+	
 }
 
 
 void ANED3D::GetOrthoMatrix(XMMATRIX& orthoMatrix)
 {
 	orthoMatrix = m_orthoMatrix;
-	return;
+	
 }
 
 void ANED3D::GetVideoCardInfo(char* cardName, int& memory)
 {
 	strcpy_s(cardName, 128, m_videoCardDescription);
 	memory = m_videoCardMemory;
-	return;
-}
-
-void ANED3D::SetBackBufferRenderTarget()
-{
-	// Bind the render target view and depth stencil buffer to the output render pipeline.
-	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
-
-	return;
-}
-
-
-void ANED3D::ResetViewport()
-{
-	// Set the viewport.
-	m_deviceContext->RSSetViewports(1, &m_viewport);
-
-	return;
+	
 }

@@ -30,9 +30,6 @@ public:
 
     void GetVideoCardInfo(char*, int&);
 
-    void SetBackBufferRenderTarget();
-    void ResetViewport();
-
 private:
     bool m_vsync_enabled;
     int m_videoCardMemory;

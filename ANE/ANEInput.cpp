@@ -4,9 +4,6 @@ ANEInput::ANEInput()
 {
 }
 
-ANEInput::ANEInput(const ANEInput& input)
-{
-}
 
 ANEInput::~ANEInput()
 {

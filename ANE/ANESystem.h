@@ -9,10 +9,9 @@ class ANESystem
 {
 public:
 	ANESystem();
-	ANESystem(const ANESystem& system);
 	~ANESystem();
 
-	bool Initialize();
+	bool Initialize(ApplicationMode mode);
 	void Shutdown();
 	void Run();
 

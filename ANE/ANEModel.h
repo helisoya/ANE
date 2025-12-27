@@ -11,7 +11,7 @@ class ANEModel
 {
 	struct VertexType
 	{
-		XMFLOAT3 position;
+		XMFLOAT4 position;
 		XMFLOAT2 texture;
 	};
 

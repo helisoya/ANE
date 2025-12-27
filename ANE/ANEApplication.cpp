@@ -1,25 +1,25 @@
 #include "ANEApplication.h"
 
+#include <iostream>
+
 ANEApplication::ANEApplication()
 {
 	m_Direct3D = 0;
 	m_Camera = 0;
 	m_Model = 0;
-	m_ColorShader = 0;
-}
-
-ANEApplication::ANEApplication(const ANEApplication& application)
-{
+	m_Shader = 0;
+	m_mode = GAME;
 }
 
 ANEApplication::~ANEApplication()
 {
 }
 
-bool ANEApplication::Initialize(int screenWidth, int screenHeight, HWND hwnd)
+bool ANEApplication::Initialize(int screenWidth, int screenHeight, HWND hwnd, ApplicationMode mode)
 {
 	bool result;
 
+	m_mode = mode;
 
 	// Create and initialize the Direct3D object.
 	m_Direct3D = new ANED3D;
@@ -50,13 +50,28 @@ bool ANEApplication::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Create and initialize the color shader object.
-	m_ColorShader = new ANEShader;
+	m_Shader = new ANEShader(L"default");
 
-	result = m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	result = m_Shader->Initialize(m_Direct3D->GetDevice(), 
+		hwnd,VertexLayout_PositionUV::InputElementDescs.data(), 
+		VertexLayout_PositionUV::InputElementDescs.size());
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
 		return false;
+	}
+
+	
+	if (m_mode != GAME) {
+		// Initialize ImGui
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+
+		ImGui_ImplWin32_Init(hwnd);
+		ImGui_ImplDX11_Init(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext());
 	}
 
 	return true;
@@ -65,11 +80,11 @@ bool ANEApplication::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 void ANEApplication::Shutdown()
 {
 	// Release the color shader object.
-	if (m_ColorShader)
+	if (m_Shader)
 	{
-		m_ColorShader->Shutdown();
-		delete m_ColorShader;
-		m_ColorShader = 0;
+		m_Shader->Shutdown();
+		delete m_Shader;
+		m_Shader = 0;
 	}
 
 	// Release the model object.
@@ -94,23 +109,29 @@ void ANEApplication::Shutdown()
 		delete m_Direct3D;
 		m_Direct3D = 0;
 	}
+
+	if (m_mode != GAME) {
+		ImGui_ImplDX11_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+	}
 }
 
 bool ANEApplication::Frame()
 {
-	bool result;
+	m_timer.Tick([&]() { Update(); });
 
-	// Render the graphics scene.
-	result = Render();
-	if (!result)
-	{
-		return false;
-	}
+	Render();
+
 	return true;
 }
 
 bool ANEApplication::Render()
 {
+	if (m_timer.GetFrameCount() == 0)
+		return true;
+
+
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
 
@@ -130,7 +151,7 @@ bool ANEApplication::Render()
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
 	// Render the model using the color shader.
-	result = m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	result = m_Shader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
 	if (!result)
 	{
 		return false;
@@ -140,5 +161,59 @@ bool ANEApplication::Render()
 	// Present the rendered scene to the screen.
 	m_Direct3D->EndScene();
 
+	if (m_mode != GAME) {
+		// Render ImGui
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
+
 	return true;
+}
+
+bool ANEApplication::Update()
+{
+	double deltaTime = m_timer.GetElapsedSeconds();
+
+	if (m_mode != GAME) {
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+
+		Im();
+	}
+
+	return true;
+}
+
+void ANEApplication::Im()
+{
+	ImGui::Begin("ANE");
+	ImGui::SetWindowSize(ImVec2(500, 600));
+	
+	if (m_mode == GAME_DEBUG) {
+		ImGui::Text("FPS : ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(m_timer.GetFramesPerSecond()).c_str());
+	}
+	else if (m_mode == SCENE_EDITOR) {
+		if (ImGui::CollapsingHeader("Scenes")) {
+			for (int i = 0; i < 2; i++) {
+				if (ImGui::Button(std::to_string(i).c_str())) {
+
+				}
+			}
+
+			ImGui::Spacing();
+
+			ImGui::Text("Scene Name");
+			ImGui::SameLine();
+			if (ImGui::Button("Create scene")) {
+
+			}
+		}
+	}
+	ImGui::End();
 }

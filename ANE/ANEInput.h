@@ -3,7 +3,6 @@ class ANEInput
 {
 public:
 	ANEInput();
-	ANEInput(const ANEInput& input);
 	~ANEInput();
 	
 	void Initialize();

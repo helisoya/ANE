@@ -82,16 +82,16 @@ bool ANEModel::InitializeBuffers(ID3D11Device* device)
 	}
 
 	// Load the vertex array with data.
-	vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);  // Bottom left.
+	vertices[0].position = XMFLOAT4(-1.0f, -1.0f, 0.0f,0.0f);  // Bottom left.
 	vertices[0].texture = XMFLOAT2(0.0f, 0.0f);
 
-	vertices[1].position = XMFLOAT3(-1.0f, 1.0f, 0.0f);  // Top left.
+	vertices[1].position = XMFLOAT4(-1.0f, 1.0f, 0.0f,0.0f);  // Top left.
 	vertices[1].texture = XMFLOAT2(1.0f, 0.0f);
 
-	vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);  // Bottom right.
+	vertices[2].position = XMFLOAT4(1.0f, -1.0f, 0.0f, 0.0f);  // Bottom right.
 	vertices[2].texture = XMFLOAT2(0.0f, 1.0f);
 
-	vertices[3].position = XMFLOAT3(1.0f, 1.0f, 0.0f);  // Top right.
+	vertices[3].position = XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f);  // Top right.
 	vertices[3].texture = XMFLOAT2(1.0f, 1.0f);
 
 	m_vertexBuffer = new ANEVertexBuffer<VertexType>();
@@ -131,7 +131,7 @@ void ANEModel::ShutdownBuffers()
 		m_vertexBuffer = 0;
 	}
 
-	return;
+	
 }
 
 void ANEModel::RenderBuffers(ID3D11DeviceContext* deviceContext)
@@ -144,7 +144,7 @@ void ANEModel::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	return;
+	
 }
 
 bool ANEModel::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
@@ -174,5 +174,5 @@ void ANEModel::ReleaseTexture()
 		m_texture = 0;
 	}
 
-	return;
+	
 }
