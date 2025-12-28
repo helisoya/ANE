@@ -7,7 +7,7 @@
 #include "fstream"
 #include "sstream"
 
-World::World() : defaultTexture(L"Default") {
+World::World() : defaultMaterial(L"Default") {
 }
 
 World::~World() {
@@ -20,8 +20,11 @@ void World::Generate(DeviceResources* deviceRes) {
 
 	Reset();
 
-	model.LoadFromOBJ(L"Models/Scenes/Crate.obj",deviceRes);
-	defaultTexture.Create(deviceRes);
+	defaultMaterial.Create(deviceRes);
+	GameModel* crateModel = defaultMaterial.AddModel(L"Crate", deviceRes);
+	crateModel->AddEntity(L"Obj1");
+	crateModel->AddEntity(L"Obj2")->SetPosition(Vector3(5, 0, 0));
+	crateModel->GetEntity(L"Obj1")->SetScale(2);
 
 	Create(deviceRes);
 }
@@ -34,11 +37,7 @@ void World::Draw(Camera* camera, DeviceResources* deviceRes) {
 	gpuRes->opaque.Apply(deviceRes);
 	gpuRes->defaultDepth.Apply(deviceRes);
 
-	defaultTexture.Apply(deviceRes);
-	gpuRes->cbModel.data.model = model.model.Transpose();
-	gpuRes->cbModel.data.isInstance = false;
-	gpuRes->cbModel.UpdateBuffer(deviceRes);
-	model.Draw(deviceRes);
+	defaultMaterial.Draw(deviceRes,false);
 
 	// Clean
 

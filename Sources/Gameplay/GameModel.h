@@ -2,6 +2,7 @@
 
 #include "Engine/Buffers.h"
 #include "Engine/VertexLayout.h"
+#include "Gameplay/GameEntity.h"
 
 /// <summary>
 /// Represents a 3D Model
@@ -12,32 +13,59 @@ private:
 	VertexBuffer<Vector3> instbuffer;
 	IndexBuffer ib;
 
-public:
-	Matrix model = Matrix::Identity;
+	std::wstring id;
 
-	GameModel() {}
+	std::vector<GameEntity> entities;
+
+public:
+
+	/// <summary>
+	/// Creates a new game model
+	/// </summary>
+	/// <param name="id">The model ID</param>
+	/// <param name="filePath">The model's filepath</param>
+	/// <param name="deviceRes">The device resources</param>
+	GameModel(std::wstring &id, std::wstring &filePath, DeviceResources* deviceRes);
 
 	/// <summary>
 	/// Loads the model from an .OBJ
 	/// </summary>
 	/// <param name="filePath">The OBJ's filepath</param>
 	/// /// <param name="deviceRes">The game's device resources</param>
-	void LoadFromOBJ(std::wstring filePath, DeviceResources* deviceRes);
+	void LoadFromOBJ(std::wstring &filePath, DeviceResources* deviceRes);
 
 
 	/// <summary>
 	/// Draws the model
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
-	/// <param name="isInstanced">Use instancing</param>
-	void Draw(DeviceResources* deviceRes, bool isInstanced = false);
+	/// <param name="useInstancing">Use instancing (False will draw all models one by one)</param>
+	void Draw(DeviceResources* deviceRes, bool useInstancing = false);
 
 	/// <summary>
 	/// Resets the instance buffer's positions
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
-	/// <param name="positions">The instanced positions</param>
-	void ResetInstanceBuffer(DeviceResources* deviceRes, std::vector<Vector3>* positions);
+	void ResetInstanceBuffer(DeviceResources* deviceRes);
+
+	/// <summary>
+	/// Adds an entity to the list 
+	/// </summary>
+	/// <param name="id">The entity's id</param>
+	GameEntity* AddEntity(std::wstring id);
+
+	/// <summary>
+	/// Gets an entity from the list
+	/// </summary>
+	/// <param name="id">The entity's id</param>
+	/// <returns>The entity if it exists</returns>
+	GameEntity* GetEntity(std::wstring id);
+
+	/// <summary>
+	/// Gets the Model's ID
+	/// </summary>
+	/// <returns>The model's ID</returns>
+	const std::wstring& GetID();
 
 private:
 

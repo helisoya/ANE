@@ -4,6 +4,7 @@
 #include "Engine/Camera.h"
 #include "Gameplay/GameModel.h"
 #include "Engine/Texture.h"
+#include "GamePlay/Material.h"
 
 
 
@@ -12,9 +13,9 @@
 /// </summary>
 class World {
 
-	GameModel model;
-	Texture defaultTexture;
 	DeviceResources* deviceRes;
+
+	Material defaultMaterial;
 
 public:
 	World();

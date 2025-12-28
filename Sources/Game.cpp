@@ -42,8 +42,6 @@ OrthographicCamera hudCamera(1280, 720);
 Light light;
 Skybox skybox;
 
-char filenameBuf[50] = "Coast";
-std::vector<const char*> maps = {"Coast","River","Mountain","Delta", "Islands","Channel","Extreme","HighCoast" };
 
 /// <summary>
 /// Creates a new game
@@ -345,6 +343,9 @@ void Game::Im(DX::StepTimer const& timer)
 					float valuesRotation[3] = { 0,0,0, };
 					ImGui::SliderFloat3("Rotation", valuesRotation, -500, 500);
 
+					float valueScale = 0;
+					ImGui::SliderFloat("Scale", &valueScale, -0.1f, 50);
+
 					bool interactable;
 					ImGui::Checkbox("Interactable", &interactable);
 
@@ -356,6 +357,8 @@ void Game::Im(DX::StepTimer const& timer)
 		}
 
 		if (ImGui::CollapsingHeader("Control")) {
+			ImGui::Button("Save scene");
+			ImGui::Spacing();
 			ImGui::Button("Delete scene");
 		}
 

@@ -1,10 +1,22 @@
 #include "pch.h"
 
 #include "GameModel.h"
+#include "Engine/DefaultResources.h"
 #include "Utils.h"
 #include <iostream>
 #include <fstream>
 
+
+
+GameModel::GameModel(std::wstring &id,std::wstring &filePath, DeviceResources* deviceRes)
+{
+	this->id = id;
+
+	instbuffer.data = {};
+	instbuffer.Create(deviceRes);
+	
+	LoadFromOBJ(filePath, deviceRes);
+}
 
 void GameModel::PushTriangle(Vector3 a, Vector3 b, Vector3 c, Vector3 normal,
 	Vector2 uva, Vector2 uvb, Vector2 uvc, bool front)
@@ -22,7 +34,7 @@ void GameModel::PushTriangle(Vector3 a, Vector3 b, Vector3 c, Vector3 normal,
 	}
 }
 
-void GameModel::LoadFromOBJ(std::wstring filePath, DeviceResources* deviceRes)
+void GameModel::LoadFromOBJ(std::wstring &filePath, DeviceResources* deviceRes)
 {
 	vb.Clear();
 	ib.Clear();
@@ -99,33 +111,77 @@ void GameModel::LoadFromOBJ(std::wstring filePath, DeviceResources* deviceRes)
 
 
 void GameModel::Draw(DeviceResources* deviceRes, bool isInstanced) {
+	auto gpuRes = DefaultResources::Get();
+	std::vector<GameEntity>::iterator it;
 
 
 	if (!isInstanced) {
-		// If not instanced, draw normaly
 		if (vb.Size() == 0) return;
+		// If not instanced, draw normaly
+
 		vb.Apply(deviceRes, 0);
 		ib.Apply(deviceRes);
-		deviceRes->GetD3DDeviceContext()->DrawIndexed(ib.Size(), 0, 0);
+
+		for (it = entities.begin(); it != entities.end(); ++it) {
+			gpuRes->cbModel.data.model = (*it).GetWorldMatrix().Transpose();
+			gpuRes->cbModel.data.isInstance = false;
+			gpuRes->cbModel.UpdateBuffer(deviceRes);
+
+			deviceRes->GetD3DDeviceContext()->DrawIndexed(ib.Size(), 0, 0);
+		}
 	}
 	else {
 		// If instanced, add the instance buffer to the vertex buffer, then draw
-		UINT strides[2] = { sizeof(VertexLayout_PositionNormalUV), sizeof(Vector3) };
+		ResetInstanceBuffer(deviceRes);
+
+		
+		UINT strides[2] = { sizeof(VertexLayout_PositionNormalUV), sizeof(Matrix) };
 		UINT offsets[2] = { 0, 0 };
 
 		ID3D11Buffer* vertInstBuffers[2] = { vb.get().Get(), instbuffer.get().Get() };
+
+		gpuRes->cbModel.data.model = Matrix::Identity.Transpose();
+		gpuRes->cbModel.data.isInstance = true;
+		gpuRes->cbModel.UpdateBuffer(deviceRes);
 
 		ib.Apply(deviceRes);
 		//Set the models vertex buffer
 		deviceRes->GetD3DDeviceContext()->IASetVertexBuffers(0, 2, vertInstBuffers, strides, offsets);
 		deviceRes->GetD3DDeviceContext()->DrawIndexedInstanced(ib.Size(), instbuffer.Size(), 0, 0, 0);
+		
 	}
 
 
 }
 
-void GameModel::ResetInstanceBuffer(DeviceResources* deviceRes, std::vector<Vector3>* positions)
+void GameModel::ResetInstanceBuffer(DeviceResources* deviceRes)
 {
-	instbuffer.data = *positions;
-	instbuffer.Create(deviceRes);
+	instbuffer.Clear();
+
+	std::vector<GameEntity>::iterator it;
+	for (it = entities.begin(); it != entities.end(); ++it) {
+		instbuffer.data.push_back((*it).GetPosition());
+	}
+	instbuffer.UpdateBuffer(deviceRes);
+}
+
+GameEntity* GameModel::AddEntity(std::wstring id)
+{
+	entities.push_back(GameEntity(id));
+	return &(*(entities.end()-1));
+}
+
+GameEntity* GameModel::GetEntity(std::wstring id)
+{
+	std::vector<GameEntity>::iterator it;
+	for (it = entities.begin(); it != entities.end(); ++it) {
+		if (wcscmp(id.c_str(), (*it).GetID().c_str()) == 0) {
+			return &(*it);
+		}
+	}
+	return nullptr;
+}
+
+const std::wstring& GameModel::GetID() {
+	return id;
 }
