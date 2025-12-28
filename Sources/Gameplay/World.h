@@ -5,17 +5,19 @@
 #include "Gameplay/GameModel.h"
 #include "Engine/Texture.h"
 #include "GamePlay/Material.h"
+#include "Gameplay/Scene.h"
+#include "Game.h"
 
 
 
 /// <summary>
-///  Represents the world
+///  Represents the world (Scene, Skybox, Characters, ...)
 /// </summary>
 class World {
 
 	DeviceResources* deviceRes;
 
-	Material defaultMaterial;
+	Scene scene;
 
 public:
 	World();
@@ -25,7 +27,8 @@ public:
 	/// Generates the world using procedural generation
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
-	void Generate(DeviceResources* deviceRes);
+	/// <param name="mode">The current game mode</param>
+	void Generate(DeviceResources* deviceRes, GameMode mode);
 
 	/// <summary>
 	/// Draws the world
@@ -36,6 +39,9 @@ public:
 
 	// Reset the world
 	void Reset();
+
+	// Gets the scene
+	Scene* GetScene();
 
 private:
 

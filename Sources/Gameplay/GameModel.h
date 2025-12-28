@@ -62,6 +62,12 @@ public:
 	GameEntity* GetEntity(std::wstring id);
 
 	/// <summary>
+	/// Gets the entities of this model
+	/// </summary>
+	/// <returns>The entities</returns>
+	std::vector<GameEntity>& GetEntities();
+
+	/// <summary>
 	/// Gets the Model's ID
 	/// </summary>
 	/// <returns>The model's ID</returns>

@@ -33,7 +33,6 @@ Shader basicShader(L"Basic");
 Shader blockShader(L"Block");
 Shader skyboxShader(L"Skybox");
 
-Texture texture(L"terrain");
 Texture textureSky(L"skybox");
 World world;
 Player player(&world, Vector3(0, 4, 10));
@@ -88,7 +87,6 @@ void Game::Initialize(HWND window, int width, int height, GameMode mode) {
 	GenerateInputLayout<VertexLayout_PositionNormalUVInstanced>(m_deviceResources.get(), &blockShader);
 	
 	// Initialize textures
-	texture.Create(m_deviceResources.get());
 	textureSky.Create(m_deviceResources.get());
 
 	// Initialize GPU resources
@@ -103,7 +101,7 @@ void Game::Initialize(HWND window, int width, int height, GameMode mode) {
 	// Initialize world
 	light.Generate(m_deviceResources.get());
 	//world.Generate(m_deviceResources.get(),786768768876,treeThreshold);
-	world.Generate(m_deviceResources.get());
+	world.Generate(m_deviceResources.get(),mode);
 	skybox.Generate(m_deviceResources.get());
 
 
@@ -196,18 +194,11 @@ void Game::Render(DX::StepTimer const& timer) {
 	light.Apply(m_deviceResources.get());
 
 	blockShader.Apply(m_deviceResources.get());
-	texture.Apply(m_deviceResources.get());
 	world.Draw(player.GetCamera(), m_deviceResources.get());
 	player.Draw(m_deviceResources.get());
 	
-	// Draw buildings
-
-	//ApplyInputLayout<VertexLayout_PositionNormalUVInstanced>(m_deviceResources.get());
-	//world.DrawBuildings(player.GetCamera(), m_deviceResources.get());
 
 	// Draw UI
-
-	//ApplyInputLayout<VertexLayout_PositionNormalUV>(m_deviceResources.get());
 
 	hudCamera.ApplyCamera(m_deviceResources.get());
 	ApplyInputLayout<VertexLayout_PositionColor>(m_deviceResources.get());
@@ -324,45 +315,7 @@ void Game::Im(DX::StepTimer const& timer)
 
 		ImGui::End();
 
-		ImGui::Begin("Current scene", NULL);
-		ImGui::SetWindowCollapsed(false);
-		ImGui::SetWindowSize(ImVec2(500, 600), ImGuiCond_Always);
-
-		ImGui::Text("Scene name ");
-		ImGui::SameLine();
-		ImGui::Button("Rename");
-
-		if (ImGui::CollapsingHeader("Objects")) {
-
-			for (int i = 0; i < 2; i++) {
-				ImGui::PushID(i);
-				if (ImGui::CollapsingHeader("Obj")) {
-					float valuesPosition[3] = { 0,0,0, };
-					ImGui::SliderFloat3("Position", valuesPosition, -500, 500);
-
-					float valuesRotation[3] = { 0,0,0, };
-					ImGui::SliderFloat3("Rotation", valuesRotation, -500, 500);
-
-					float valueScale = 0;
-					ImGui::SliderFloat("Scale", &valueScale, -0.1f, 50);
-
-					bool interactable;
-					ImGui::Checkbox("Interactable", &interactable);
-
-					char text[64];
-					ImGui::InputText("ID", text, 64);
-				}
-				ImGui::PopID();
-			}
-		}
-
-		if (ImGui::CollapsingHeader("Control")) {
-			ImGui::Button("Save scene");
-			ImGui::Spacing();
-			ImGui::Button("Delete scene");
-		}
-
-		ImGui::End();
+		world.GetScene()->Im();
 	}
 
 }

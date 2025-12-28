@@ -7,24 +7,26 @@
 #include "fstream"
 #include "sstream"
 
-World::World() : defaultMaterial(L"Default") {
+World::World() : scene() {
 }
 
 World::~World() {
 
 }
 
-void World::Generate(DeviceResources* deviceRes) {
+void World::Generate(DeviceResources* deviceRes, GameMode mode) {
 	
 	this->deviceRes = deviceRes;
 
 	Reset();
 
-	defaultMaterial.Create(deviceRes);
-	GameModel* crateModel = defaultMaterial.AddModel(L"Crate", deviceRes);
+	Material* material = scene.AddMaterial(L"Default",deviceRes);
+	GameModel* crateModel = material->AddModel(L"Crate", deviceRes);
 	crateModel->AddEntity(L"Obj1");
 	crateModel->AddEntity(L"Obj2")->SetPosition(Vector3(5, 0, 0));
 	crateModel->GetEntity(L"Obj1")->SetScale(2);
+
+	scene.Generate(deviceRes, mode);
 
 	Create(deviceRes);
 }
@@ -37,7 +39,7 @@ void World::Draw(Camera* camera, DeviceResources* deviceRes) {
 	gpuRes->opaque.Apply(deviceRes);
 	gpuRes->defaultDepth.Apply(deviceRes);
 
-	defaultMaterial.Draw(deviceRes,false);
+	scene.Draw(deviceRes);
 
 	// Clean
 
@@ -51,11 +53,15 @@ void World::Reset()
 
 }
 
+Scene* World::GetScene()
+{
+	return &scene;
+}
+
 
 
 
 void World::Create(DeviceResources* deviceRes)
 {
-
 	DefaultResources::Get()->cbModel.Create(deviceRes);
 }

@@ -182,6 +182,11 @@ GameEntity* GameModel::GetEntity(std::wstring id)
 	return nullptr;
 }
 
+std::vector<GameEntity>& GameModel::GetEntities()
+{
+	return entities;
+}
+
 const std::wstring& GameModel::GetID() {
 	return id;
 }
