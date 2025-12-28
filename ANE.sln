@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36616.10 d17.14
-MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ANE", "ANE.vcxproj", "{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E} = {E0B52AE7-E160-4D32-BF3F-910B785E5A8E}
@@ -14,26 +12,23 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Release|x64 = Release|x64
-		Scene Editor|x64 = Scene Editor|x64
+		SceneEditor|x64 = SceneEditor|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}.Debug|x64.ActiveCfg = Debug|x64
 		{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}.Debug|x64.Build.0 = Debug|x64
 		{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}.Release|x64.ActiveCfg = Release|x64
 		{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}.Release|x64.Build.0 = Release|x64
-		{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}.Scene Editor|x64.ActiveCfg = Scene Editor|x64
-		{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}.Scene Editor|x64.Build.0 = Scene Editor|x64
+		{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}.SceneEditor|x64.ActiveCfg = SceneEditor|x64
+		{B9D1870B-25DB-877C-AE56-9E7C1A5F937C}.SceneEditor|x64.Build.0 = SceneEditor|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Debug|x64.ActiveCfg = Debug|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Debug|x64.Build.0 = Debug|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release|x64.ActiveCfg = Release|x64
 		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Release|x64.Build.0 = Release|x64
-		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Scene Editor|x64.ActiveCfg = Scene Editor|x64
-		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.Scene Editor|x64.Build.0 = Scene Editor|x64
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.SceneEditor|x64.ActiveCfg = SceneEditor|x64
+		{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}.SceneEditor|x64.Build.0 = SceneEditor|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {57944850-F79F-4E59-8FBA-45A5C05691B9}
 	EndGlobalSection
 EndGlobal

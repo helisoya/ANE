@@ -9,7 +9,7 @@
 #include "Chunk.h"
 #include "Building3D.h"
 
-World::World() {
+World::World() : defaultTexture(L"Default") {
 
 	// Generate empty world
 	for (int x = 0; x < WORLD_SIZE; x++) {
@@ -96,6 +96,9 @@ void World::Generate(DeviceResources* deviceRes,int seed, float treeThreshold) {
 
 	Reset();
 
+	model.LoadFromOBJ(L"Models/Crate.obj",deviceRes);
+	defaultTexture.Create(deviceRes);
+
 	siv::BasicPerlinNoise<float> perlin(seed);
 	float noiseValue;
 	int yMax;
@@ -152,6 +155,9 @@ void World::GenerateFromFile(DeviceResources* deviceRes, std::wstring filePath, 
 	this->deviceRes = deviceRes;
 
 	Reset();
+
+	model.LoadFromOBJ(L"Models/Crate.obj", deviceRes);
+	defaultTexture.Create(deviceRes);
 
 	// The seed is generated from the filename
 	int treeSeed = 0;
@@ -255,9 +261,16 @@ void World::Draw(Camera* camera, DeviceResources* deviceRes) {
 				chunks[idx]->Draw(deviceRes, (ShaderPass)pass);
 			}
 		}
+		defaultTexture.Apply(deviceRes);
+		gpuRes->cbModel.data.model = model.model.Transpose();
+		gpuRes->cbModel.data.isInstance = false;
+		gpuRes->cbModel.UpdateBuffer(deviceRes);
+		model.Draw(deviceRes);
 	}
 
 	// Clean
+
+	
 
 	gpuRes->cbModel.data.model = Matrix::Identity;
 	gpuRes->cbModel.UpdateBuffer(deviceRes);
@@ -309,7 +322,6 @@ void World::Reset()
 			}
 		}
 	}
-	
 }
 
 Chunk* World::GetChunk(int cx, int cy, int cz) {

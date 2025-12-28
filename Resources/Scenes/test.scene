@@ -1,0 +1,7 @@
+[Lighting]
+Skybox;A
+Direction;0;50;30
+
+[Objects]
+Crate;Crate A;false;0;0;0;0;0;0
+Crate;Crate B;true;2;0;0;0;0;0

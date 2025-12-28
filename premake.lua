@@ -1,6 +1,6 @@
 solution "ANE"
 	location "."
-	configurations {  "Debug", "Release" }
+	configurations {  "Debug", "Release", "SceneEditor" }
 	platforms { "x64" }
 	startproject "ANE"
 
@@ -26,15 +26,15 @@ project "ANE"
 		"Sources/**.cpp",
 		"Resources/Shaders/**.hlsl",
 		"main.cpp",
-		"imgui/**.h",
-		"imgui/**.cpp",
+		"Deps/imgui/*.h",
+		"Deps/imgui/*.cpp",
 	}
 
 	includedirs {
 		"Sources",
 		"Deps/DirectXTK/Inc",
 		"Deps/PerlinNoise",
-		"imgui"
+		"Deps/imgui"
 	}
 
 	links {
@@ -55,11 +55,24 @@ project "ANE"
 	   shadertype "Pixel"
 	filter "files:**_vs**.hlsl" 
 	   shadertype "Vertex"
+	filter "files:Deps/imgui/**.cpp"
+		flags {"NoPCH"}
 	filter {}
+	
+
 	
 	filter "configurations:Debug"
 		defines { "DEBUG" }
 		symbols "On"
+		debugargs { "Debug" }
+		libdirs {
+			"Deps/DirectXTK/Bin/Desktop_2022/x64/Debug/",
+		}
+		
+	filter "configurations:SceneEditor"
+		defines { "DEBUG" }
+		symbols "On"
+		debugargs { "SceneEditor" }
 		libdirs {
 			"Deps/DirectXTK/Bin/Desktop_2022/x64/Debug/",
 		}
@@ -67,6 +80,7 @@ project "ANE"
 	filter "configurations:Release"
 		defines { "NDEBUG" }
 		optimize "On"
+		debugargs { "Game" }
 		libdirs {
 			"Deps/DirectXTK/Bin/Desktop_2022/x64/Release/",
 		}

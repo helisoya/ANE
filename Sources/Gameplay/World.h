@@ -3,6 +3,8 @@
 #include "Engine/BlendState.h"
 #include "Engine/Camera.h"
 #include "Gameplay/Block.h"
+#include "Gameplay/GameModel.h"
+#include "Engine/Texture.h"
 
 #define WORLD_SIZE 6
 #define WORLD_HEIGHT 1
@@ -46,6 +48,9 @@ class World {
 	Chunk* chunks[WORLD_SIZE * WORLD_HEIGHT * WORLD_SIZE];
 	Building buildings[WORLD_SIZE * 16 * WORLD_SIZE * 16];
 	std::map<Building, BuildingData> buildingsPositions;
+
+	GameModel model;
+	Texture defaultTexture;
 
 	int energyGain = 0;
 	int waterGain = 0;
