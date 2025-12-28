@@ -4,7 +4,7 @@
 #include "Engine/Camera.h"
 #include "Engine/StepTimer.h"
 #include "Gameplay/World.h"
-#include "Gameplay/Building3D.h"
+#include "Game.h"
 
 using namespace DirectX::SimpleMath;
 
@@ -15,21 +15,13 @@ class Player {
 	World* world = nullptr;
 
 	Vector3 position = Vector3();
+	Vector3 defaultPosition;
 
 	float walkSpeed = 10.0f;
 
 	PerspectiveCamera camera = PerspectiveCamera(75, 1);
 
-	Building3D highlightCube = Building3D(NOTHING);
-	Building possibleBuildings[7] = {NOTHING,ROAD,HOUSE,SHOP,FACTORY,ENERGYPLANT,WATERPLANT};
-	char* buildingsNames[7] = { "Destroy","Road","House","Shop","Factory","Energy Plant","Water Plant" };
-	int prices[7] = {25,2,4,6,10,15,15};
-	int currentBuildingIdx = 0;
-	int money = 100;
-
 	float currentYaw = 0;
-
-	float passiveIncomeCooldown = 10;
 
 	DirectX::Mouse::ButtonStateTracker      mouseTracker;
 	DirectX::Keyboard::KeyboardStateTracker keyboardTracker;
@@ -37,14 +29,17 @@ class Player {
 	int screenWidth = 800;
 	int screenHeight = 600;
 
+	GameMode mode = GAME;
+
 public:
-	Player(World* w, Vector3 pos) : world(w), position(pos){}
+	Player(World* w, Vector3 pos) : world(w), position(pos), defaultPosition(pos){}
 
 	/// <summary>
 	/// Generates the player's resources
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
-	void GenerateGPUResources(DeviceResources* deviceRes);
+	/// <param name="mode">The game's mode</param>
+	void GenerateGPUResources(DeviceResources* deviceRes, GameMode mode);
 
 	/// <summary>
 	/// Updates the player

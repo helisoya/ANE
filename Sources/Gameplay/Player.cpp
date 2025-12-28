@@ -6,75 +6,64 @@
 #include <Engine/StepTimer.h>
 #include "string"
 #include "iostream"
-#include "Chunk.h"
 
 using ButtonState = Mouse::ButtonStateTracker::ButtonState;
 
-void Player::GenerateGPUResources(DeviceResources* deviceRes) {
-	highlightCube.Generate(deviceRes);
+void Player::GenerateGPUResources(DeviceResources* deviceRes, GameMode mode) {
+	camera.SetRotation(Quaternion::CreateFromYawPitchRoll(currentYaw,0,0));
+	camera.SetPosition(position);
+	this->mode = mode;
 
-	camera.SetRotation(Quaternion::CreateFromYawPitchRoll(currentYaw,-45,0));
 }
 
 void Player::Update(float dt, DirectX::Keyboard::State kb, DirectX::Mouse::State ms) {
 	keyboardTracker.Update(kb);
 	mouseTracker.Update(ms);
 
+	if (mode == SCENE_EDITOR) {
 
-	// Add passive income if needed
-	passiveIncomeCooldown -= dt;
-	if (passiveIncomeCooldown <= 0) {
-		passiveIncomeCooldown = 10.0f;
-		money += world->GetPassiveIncome();
+		if (kb.R) {
+			position.x = defaultPosition.x;
+			position.y = defaultPosition.y;
+			position.z = defaultPosition.z;
+			currentYaw = 0;
+
+			camera.SetPosition(position);
+			camera.SetRotation(Quaternion::CreateFromYawPitchRoll(0, 0, 0));
+		}
+
+		// Movements
+		float speed = walkSpeed;
+		if (kb.LeftShift) speed *= 2;
+
+		Vector3 delta;
+		if (kb.Z) delta += Vector3::Forward;
+		if (kb.S) delta += Vector3::Backward;
+		if (kb.Q) delta += Vector3::Left;
+		if (kb.D) delta += Vector3::Right;
+		Vector3 move = Vector3::TransformNormal(delta, camera.GetInverseViewMatrix());
+		move.y = 0;
+		move.Normalize();
+		position += move * speed * dt;
+
+
+		// Rotation
+		int rotationSide = (kb.A ? 1 : 0) - (kb.E ? 1 : 0);
+		if (rotationSide != 0) {
+			currentYaw += rotationSide * dt * 0.8f;
+			if (currentYaw < -360.0f) currentYaw += 360.f;
+			else if (currentYaw > 360.0f) currentYaw -= 360.f;
+
+			camera.SetRotation(Quaternion::CreateFromYawPitchRoll(currentYaw, 0, 0));
+		}
+
+		// The camera's position
+
+		camera.SetPosition(position);
 	}
 
-	// Movements
-	float speed = walkSpeed;
-	if (kb.LeftShift) speed *= 2;
 
-	Vector3 delta;
-	if (kb.Z) delta += Vector3::Forward;
-	if (kb.S) delta += Vector3::Backward;
-	if (kb.Q) delta += Vector3::Left;
-	if (kb.D) delta += Vector3::Right;
-	Vector3 move = Vector3::TransformNormal(delta, camera.GetInverseViewMatrix());
-	move.y = 0;
-	move.Normalize();
-	position += move * speed * dt;
-
-
-	// Zoom
-	float scrollValue = -((float)ms.scrollWheelValue * 0.25f);
-	position += Vector3::Up * scrollValue * walkSpeed * dt;
-	position.y = std::clamp(position.y, 2.0f, 50.0f);
-
-
-	// Rotation
-	int rotationSide = (kb.A ? 1 : 0) - (kb.E ? 1 : 0);
-	if (rotationSide != 0) {
-		currentYaw += rotationSide * dt * 0.8f;
-		if (currentYaw < -360.0f) currentYaw += 360.f;
-		else if (currentYaw > 360.0f) currentYaw -= 360.f;
-
-		camera.SetRotation(Quaternion::CreateFromYawPitchRoll(currentYaw, -45, 0));
-	}
-
-	// The camera's position
-	camera.SetPosition(position + Vector3(0, 1.25f, 0));
-	highlightCube.model = Matrix::Identity;
-
-
-	// Change current building
-	if (kb.D1) currentBuildingIdx = 0;
-	else if (kb.D2) currentBuildingIdx = 1;
-	else if (kb.D3) currentBuildingIdx = 2;
-	else if (kb.D4) currentBuildingIdx = 3;
-	else if (kb.D5) currentBuildingIdx = 4;
-	else if (kb.D6) currentBuildingIdx = 5;
-	else if (kb.D7) currentBuildingIdx = 6;
-
-	// Raycast for a cube to place a building on
-
+	// Raycast
 	float mouseX = ms.x;
 	float mouseY = ms.y;
 	float a_width = screenWidth;
@@ -94,82 +83,16 @@ void Player::Update(float dt, DirectX::Keyboard::State kb, DirectX::Mouse::State
 
 	auto cubes = Raycast(camera.GetPosition(), pickRayViewSpaceDir, 100);
 	for (int i = 0; i < cubes.size(); i++) {
-
-		BlockId* block = world->GetCube(cubes[i][0], cubes[i][1], cubes[i][2]);
-		if (block == nullptr || cubes[i][1] >= 16 || cubes[i][1] < 0) continue;
-		BlockData blockData = BlockData::Get(*block);
-		if (blockData.flags & BF_NO_RAYCAST) continue;
-
-
-		// Cube exists AND its raycastable
-
-		int actualHeight = cubes[i][1];
-		while (actualHeight < CHUNK_SIZE - 1 && *world->GetCube(cubes[i][0], actualHeight + 1, cubes[i][2]) != EMPTY) {
-			actualHeight++;
-		}
-
-		block = world->GetCube(cubes[i][0], actualHeight, cubes[i][2]);
-		if (block == nullptr || actualHeight >= 16 || actualHeight < 0) continue;
-		blockData = BlockData::Get(*block);
-		if (blockData.flags & BF_NO_RAYCAST) continue;
-
-
-		highlightCube.model = Matrix::CreateTranslation(cubes[i][0], actualHeight, cubes[i][2]);
-
-		if (actualHeight != 1 && actualHeight != 2) break;
-
-		// The cube is a the required height (1 - 2)
-
-		if (mouseTracker.leftButton == ButtonState::PRESSED && money >= prices[currentBuildingIdx]) {
-			// Player wants to place or destroy a building, an he can pay the price
-
-			// Water plant can only be built near water
-			if (possibleBuildings[currentBuildingIdx] == WATERPLANT && !world->IsAdjacentToWater(cubes[i][0], cubes[i][1], cubes[i][2])) continue; 
-			
-			// You can only destroy a building 
-			if (possibleBuildings[currentBuildingIdx] == NOTHING && world->GetBuilding(cubes[i][0], cubes[i][2]) == NOTHING) continue;
-
-			// You need an empty space to build something
-			Building other = world->GetBuilding(cubes[i][0], cubes[i][2]);
-			if (possibleBuildings[currentBuildingIdx] != NOTHING && world->GetBuilding(cubes[i][0], cubes[i][2]) != NOTHING) continue;
-
-			if (possibleBuildings[currentBuildingIdx] != NOTHING) {
-				// Adding a building
-				money -= prices[currentBuildingIdx];
-				world->PlaceBuilding(possibleBuildings[currentBuildingIdx], cubes[i][0], cubes[i][1] + 1, cubes[i][2]);
-			}
-			else {
-				// Remove a building
-				money -= prices[currentBuildingIdx];
-				world->RemoveBuilding(cubes[i][0], cubes[i][1] + 1, cubes[i][2]);
-			}
-		}
-		break;
 	}
-
 }
 
 void Player::Draw(DeviceResources* deviceRes) {
 	auto gpuRes = DefaultResources::Get();
-
-	gpuRes->noDepth.Apply(deviceRes);
-	gpuRes->cbModel.ApplyToVS(deviceRes, 0);
-
-
-	gpuRes->depthEqual.Apply(deviceRes);
-	gpuRes->cbModel.data.model = highlightCube.model.Transpose();
-	gpuRes->cbModel.UpdateBuffer(deviceRes);
-	highlightCube.Draw(deviceRes);
-
-	gpuRes->cbModel.data.model = Matrix::Identity;
-	gpuRes->cbModel.UpdateBuffer(deviceRes);
-	gpuRes->defaultDepth.Apply(deviceRes);
 }
 
 void Player::Reset()
 {
-	money = 100;
-	passiveIncomeCooldown = 10;
+
 }
 
 void Player::SetScreenSize(int width, int height)

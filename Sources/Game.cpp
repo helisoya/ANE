@@ -36,15 +36,12 @@ Shader skyboxShader(L"Skybox");
 Texture texture(L"terrain");
 Texture textureSky(L"skybox");
 World world;
-Player player(&world, Vector3(16, 32, 16));
+Player player(&world, Vector3(0, 4, 10));
 OrthographicCamera hudCamera(1280, 720);
 
 Light light;
 Skybox skybox;
 
-bool showGUI = true;
-int seed = 786768768876;
-float treeThreshold = 0.4f;
 char filenameBuf[50] = "Coast";
 std::vector<const char*> maps = {"Coast","River","Mountain","Delta", "Islands","Channel","Extreme","HighCoast" };
 
@@ -100,7 +97,7 @@ void Game::Initialize(HWND window, int width, int height, GameMode mode) {
 	gpuResources.Create(m_deviceResources.get());
 
 	// Initialize player & cameras
-	player.GenerateGPUResources(m_deviceResources.get());
+	player.GenerateGPUResources(m_deviceResources.get(),mode);
 	player.GetCamera()->UpdateAspectRatio((float)width / (float)height);
 	player.SetScreenSize(width, height);
 	hudCamera.UpdateSize((float)width, (float)height);
@@ -108,7 +105,7 @@ void Game::Initialize(HWND window, int width, int height, GameMode mode) {
 	// Initialize world
 	light.Generate(m_deviceResources.get());
 	//world.Generate(m_deviceResources.get(),786768768876,treeThreshold);
-	world.GenerateFromFile(m_deviceResources.get(), L"Coast", treeThreshold);
+	world.Generate(m_deviceResources.get());
 	skybox.Generate(m_deviceResources.get());
 
 
@@ -207,8 +204,8 @@ void Game::Render(DX::StepTimer const& timer) {
 	
 	// Draw buildings
 
-	ApplyInputLayout<VertexLayout_PositionNormalUVInstanced>(m_deviceResources.get());
-	world.DrawBuildings(player.GetCamera(), m_deviceResources.get());
+	//ApplyInputLayout<VertexLayout_PositionNormalUVInstanced>(m_deviceResources.get());
+	//world.DrawBuildings(player.GetCamera(), m_deviceResources.get());
 
 	// Draw UI
 
