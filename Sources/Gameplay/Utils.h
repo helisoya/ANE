@@ -12,6 +12,20 @@ float sign(float v);
 int signInt(int v);
 
 /// <summary>
+/// Casts a char array to a wchar array
+/// </summary>
+/// <param name="str">The char array</param>
+/// <returns>The wchar array</returns>
+wchar_t* toWChar(const char* str);
+
+/// <summary>
+/// Casts a wchar array to a char array
+/// </summary>
+/// <param name="str">The wchar array</param>
+/// <returns>The char array</returns>
+char* toChar(const wchar_t* str);
+
+/// <summary>
 /// Starts a raycast
 /// </summary> 
 /// <param name="pos">The start position</param>

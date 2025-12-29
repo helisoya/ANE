@@ -55,6 +55,26 @@ public:
 	std::vector<GameModel>& GetModels();
 
 	/// <summary>
+	/// Removes an entity from a model's list
+	/// </summary>
+	/// <param name="modelId">The model's ID</param>
+	/// <param name="entityId">The entity's ID</param>
+	/// <returns>True if the material has no linked model</returns>
+	bool RemoveEntity(const std::wstring& modelId, const USHORT& entityId);
+
+	/// <summary>
+	/// Removes an entire model from the material's list
+	/// </summary>
+	/// <param name="modelId">The model's ID</param>
+	/// <returns>True if the material has no linked model</returns>
+	bool RemoveModel(const std::wstring& modelId);
+
+	/// <summary>
+	/// Release the material
+	/// </summary>
+	void Release();
+
+	/// <summary>
 	/// Gets the Material's ID
 	/// </summary>
 	/// <returns>The material's ID</returns>

@@ -14,8 +14,11 @@ private:
 	IndexBuffer ib;
 
 	std::wstring id;
+	std::wstring materialId;
 
 	std::vector<GameEntity> entities;
+
+	USHORT idCounter;
 
 public:
 
@@ -23,9 +26,10 @@ public:
 	/// Creates a new game model
 	/// </summary>
 	/// <param name="id">The model ID</param>
+	/// <param name="materialId">The material's ID</param>
 	/// <param name="filePath">The model's filepath</param>
 	/// <param name="deviceRes">The device resources</param>
-	GameModel(std::wstring &id, std::wstring &filePath, DeviceResources* deviceRes);
+	GameModel(std::wstring &id, std::wstring materialId, std::wstring &filePath, DeviceResources* deviceRes);
 
 	/// <summary>
 	/// Loads the model from an .OBJ
@@ -51,15 +55,22 @@ public:
 	/// <summary>
 	/// Adds an entity to the list 
 	/// </summary>
-	/// <param name="id">The entity's id</param>
-	GameEntity* AddEntity(std::wstring id);
+	/// <param name="name">The entity's name</param>
+	GameEntity* AddEntity(std::wstring name);
+
+	/// <summary>
+	/// Gets an entity from the list
+	/// </summary>
+	/// <param name="name">The entity's name</param>
+	/// <returns>The entity if it exists</returns>
+	GameEntity* GetEntity(std::wstring name);
 
 	/// <summary>
 	/// Gets an entity from the list
 	/// </summary>
 	/// <param name="id">The entity's id</param>
 	/// <returns>The entity if it exists</returns>
-	GameEntity* GetEntity(std::wstring id);
+	GameEntity* GetEntity(USHORT id);
 
 	/// <summary>
 	/// Gets the entities of this model
@@ -68,10 +79,22 @@ public:
 	std::vector<GameEntity>& GetEntities();
 
 	/// <summary>
+	/// Removes an entity from the list
+	/// </summary>
+	/// <param name="id">The entity's id</param>
+	/// <returns>True if the model has no entities and should be deleted</returns>
+	bool RemoveEntity(const USHORT& id);
+
+	/// <summary>
 	/// Gets the Model's ID
 	/// </summary>
 	/// <returns>The model's ID</returns>
 	const std::wstring& GetID();
+
+	/// <summary>
+	/// Release the model's buffers
+	/// </summary>
+	void Release();
 
 private:
 
@@ -81,10 +104,14 @@ private:
 	/// <param name="a">Point A's position</param>
 	/// <param name="b">Point B's position</param>
 	/// <param name="c">Point C's position</param>
-	/// <param name="normal">The face's normal</param>
+	/// <param name="na">Point A's normal</param>
+	/// <param name="nb">Point B's normal</param>
+	/// <param name="nc">Point C's normal</param>
 	/// <param name="uva">Point A's UV</param>
 	/// <param name="uvb">Point B's UV</param>
 	/// <param name="uvc">Point C's UV</param>
 	/// <param name="front">True if it is a front face</param>
-	void PushTriangle(Vector3 a, Vector3 b, Vector3 c, Vector3 normal, Vector2 uva, Vector2 uvb, Vector2 uvc, bool front = true);
+	void PushTriangle(Vector3 a, Vector3 b, Vector3 c, 
+		Vector3 na, Vector3 nb, Vector3 nc,
+		Vector2 uva, Vector2 uvb, Vector2 uvc, bool front = true);
 };

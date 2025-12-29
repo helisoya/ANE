@@ -7,7 +7,8 @@
 #include "GamePlay/Material.h"
 #include "Game.h"
 #include "Gameplay/SceneEditorData.h"
-
+#include "Engine/Light.h"
+#include "Gameplay/Skybox.h"
 
 
 /// <summary>
@@ -17,10 +18,15 @@ class Scene {
 
 	std::vector<Material> materials;
 
+	Skybox skybox;
+
+	Light directionalLight;
+
 	std::wstring currentId;
 
 	GameMode mode;
 	SceneEditorData* editorData;
+	DeviceResources* deviceRes;
 
 public:
 	Scene();
@@ -39,6 +45,42 @@ public:
 	/// <param name="deviceRes">The game's device resources</param>
 	void Draw(DeviceResources* deviceRes);
 
+	/// <summary>
+	/// Draws the skybox
+	/// </summary>
+	/// <param name="deviceRes">The device resources</param>
+	void DrawSkybox(DeviceResources* deviceRes);
+
+	/// <summary>
+	/// Applies the skybox's data
+	/// </summary>
+	/// <param name="deviceRes">The skybox's data</param>
+	void ApplySkybox(DeviceResources* deviceRes);
+
+	/// <summary>
+	/// Applies the directional light's data
+	/// </summary>
+	/// <param name="deviceRes">The device resources</param>
+	void ApplyDirectionalLight(DeviceResources* deviceRes);
+
+	/// <summary>
+	/// Changes the directional light direction
+	/// </summary>
+	/// <param name="newDirection">The new direction</param>
+	void ChangeLightDirection(Vector3 newDirection);
+
+	/// <summary>
+	/// Gets the directional light
+	/// </summary>
+	/// <returns>The directional light</returns>
+	Light& GetLight();
+
+	/// <summary>
+	/// Sets the skybox's texture
+	/// </summary>
+	/// <param name="newTexture">The new texture</param>
+	void SetSkyboxTexture(std::wstring newTexture);
+
 	// Reset the scene
 	void Reset();
 
@@ -55,6 +97,11 @@ public:
 	/// Deletes the current scene from disk
 	/// </summary>
 	void DeleteSceneFromDisk();
+
+	/// <summary>
+	/// Loads the default debug scene
+	/// </summary>
+	void LoadDebugScene();
 
 	/// <summary>
 	/// Gets the scene's materials
@@ -75,6 +122,27 @@ public:
 	/// <param name="materialId">The material's ID</param>
 	/// <returns>The material</returns>
 	Material* GetMaterial(std::wstring materialId);
+
+	/// <summary>
+	/// Removes an entity from a model
+	/// </summary>
+	/// <param name="materialId">The linked material</param>
+	/// <param name="modelId">The model's ID</param>
+	/// <param name="id">The Entity's ID</param>
+	void RemoveEntity(const std::wstring& materialId,const std::wstring& modelId, const USHORT& id);
+
+	/// <summary>
+	/// Removes a model from a material
+	/// </summary>
+	/// <param name="materialId">The linked material</param>
+	/// <param name="modelId">The model's ID</param>
+	void RemoveModel(const std::wstring& materialId, const std::wstring& modelId);
+
+	/// <summary>
+	/// Removes a material
+	/// </summary>
+	/// <param name="materialId">The material</param>
+	void RemoveMaterial(const std::wstring& materialId);
 
 	/// <summary>
 	/// Updates the ImGui UI (Scene Editor)

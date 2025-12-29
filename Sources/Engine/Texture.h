@@ -24,4 +24,15 @@ public:
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
 	void Apply(DeviceResources* deviceRes);
+
+	/// <summary>
+	/// Releases the texture
+	/// </summary>
+	void Release();
+
+	/// <summary>
+	/// Gets the texture's name
+	/// </summary>
+	/// <returns>Its name</returns>
+	const std::wstring& GetName();
 };

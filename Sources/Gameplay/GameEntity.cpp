@@ -3,14 +3,16 @@
 #include "GameEntity.h"
 #include "GameModel.h"
 
-GameEntity::GameEntity(std::wstring id) : id(id), scale(1), interactable(false) {
+GameEntity::GameEntity(std::wstring name, USHORT id, std::wstring modelId, std::wstring materialId)
+	: name(name), id(id), scale(1), interactable(false), modelId(modelId),materialId(materialId) {
 	RefreshWorldMatrix();
 }
 
 
-void GameEntity::SetID(const std::wstring& id)
+
+void GameEntity::SetName(const std::wstring& id)
 {
-	this->id = id;
+	this->name = id;
 }
 
 void GameEntity::SetPosition(const Vector3& position) {
@@ -34,9 +36,23 @@ void GameEntity::SetInteractable(const bool& interactable)
 	this->interactable = interactable;
 }
 
-const std::wstring& GameEntity::GetID()
-{
+const USHORT& GameEntity::GetID() {
 	return id;
+}
+
+const std::wstring& GameEntity::GetMaterialId()
+{
+	return materialId;
+}
+
+const std::wstring& GameEntity::GetModelId()
+{
+	return modelId;
+}
+
+const std::wstring& GameEntity::GetName()
+{
+	return name;
 }
 
 const Vector3& GameEntity::GetPosition()
@@ -66,5 +82,5 @@ const Matrix& GameEntity::GetWorldMatrix()
 
 void GameEntity::RefreshWorldMatrix()
 {
-	worldMatrix = Matrix::CreateTranslation(position) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateScale(scale);
+	worldMatrix = Matrix::CreateFromQuaternion(rotation) *Matrix::CreateScale(scale) * Matrix::CreateTranslation(position);
 }

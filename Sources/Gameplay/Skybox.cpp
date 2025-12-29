@@ -2,7 +2,7 @@
 
 #include "Skybox.h"
 
-Skybox::Skybox()
+Skybox::Skybox() : texture(L"skybox"), shader(L"Skybox")
 {
 }
 
@@ -18,6 +18,23 @@ void Skybox::Generate(DeviceResources* deviceResources)
 
 	vertexBuffer.Create(deviceResources);
 	indexBuffer.Create(deviceResources);
+
+	shader.Create(deviceResources);
+	texture.Create(deviceResources);
+
+	GenerateInputLayout<VertexLayout_PositionNormalUVInstanced>(deviceResources, &shader);
+}
+
+void Skybox::ChangeTexture(std::wstring texture, DeviceResources* deviceResources)
+{
+	this->texture.Release();
+	this->texture = Texture(texture);
+	this->texture.Create(deviceResources);
+}
+
+const std::wstring& Skybox::GetTextureName()
+{
+	return texture.GetName();
 }
 
 Vector4 Skybox::ToVec4(const Vector3& v) {
@@ -44,8 +61,14 @@ void Skybox::PushFace(Vector3 pos, Vector3 up, Vector3 right, int uvIdx)
 
 void Skybox::Draw(DeviceResources* deviceResources)
 {
+	shader.Apply(deviceResources);
+	texture.Apply(deviceResources);
 	vertexBuffer.Apply(deviceResources, 0);
 	indexBuffer.Apply(deviceResources);
 
 	deviceResources->GetD3DDeviceContext()->DrawIndexed(indexBuffer.Size(), 0, 0);
+}
+
+void Skybox::Apply(DeviceResources* deviceResources) {
+	shader.Apply(deviceResources);
 }

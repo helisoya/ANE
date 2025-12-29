@@ -20,6 +20,20 @@ int signInt(int v) {
 	else return 1;
 }
 
+wchar_t* toWChar(const char* str) {
+	const size_t cSize = strlen(str) + 1;
+	wchar_t* wc = new wchar_t[cSize];
+	mbstowcs(wc, str, cSize);
+	return wc;
+}
+
+char* toChar(const wchar_t* str) {
+	const size_t cSize = wcslen(str) + 1;
+	char* wc = new char[cSize];
+	wcstombs(wc, str, cSize);
+	return wc;
+}
+
 std::vector<std::array<int, 3>> Raycast(Vector3 pos, Vector3 dir, float maxDist) {
 	std::map<float, std::array<int, 3>> cubes;
 

@@ -17,16 +17,13 @@ World::~World() {
 void World::Generate(DeviceResources* deviceRes, GameMode mode) {
 	
 	this->deviceRes = deviceRes;
+	scene.Generate(deviceRes, mode);
 
 	Reset();
 
-	Material* material = scene.AddMaterial(L"Default",deviceRes);
-	GameModel* crateModel = material->AddModel(L"Crate", deviceRes);
-	crateModel->AddEntity(L"Obj1");
-	crateModel->AddEntity(L"Obj2")->SetPosition(Vector3(5, 0, 0));
-	crateModel->GetEntity(L"Obj1")->SetScale(2);
-
-	scene.Generate(deviceRes, mode);
+	if (mode == SCENE_EDITOR) {
+		scene.LoadDebugScene();
+	}
 
 	Create(deviceRes);
 }

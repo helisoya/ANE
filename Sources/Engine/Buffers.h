@@ -31,6 +31,14 @@ public:
 	}
 
 	/// <summary>
+	/// Release the buffer
+	/// </summary>
+	void Release() {
+		data.clear();
+		buffer.ReleaseAndGetAddressOf();
+	}
+
+	/// <summary>
 	/// Gets the buffer's pointer
 	/// </summary>
 	/// <returns>The pointer</returns>
@@ -117,6 +125,15 @@ public:
 	}
 	
 	/// <summary>
+	/// Release the buffeer
+	/// </summary>
+	void Release() {
+		indices.clear();
+		buffer.ReleaseAndGetAddressOf();
+	}
+
+
+	/// <summary>
 	/// Gets the buffer's size
 	/// </summary>
 	/// <returns>Its size</returns>
@@ -176,6 +193,14 @@ public:
 			&desc, nullptr,
 			buffer.ReleaseAndGetAddressOf()
 		);
+	}
+
+	/// <summary>
+	/// Release the buffeer
+	/// </summary>
+	void Release() {
+		data.clear();
+		buffer.ReleaseAndGetAddressOf();
 	}
 
 	/// <summary>

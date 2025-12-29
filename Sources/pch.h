@@ -82,6 +82,7 @@
 #include "imgui_impl_win32.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "implot3d.h"
 
 #include "Engine/DeviceResources.h"
 

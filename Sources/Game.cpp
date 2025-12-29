@@ -31,16 +31,9 @@ using Microsoft::WRL::ComPtr;
 DefaultResources gpuResources;
 Shader basicShader(L"Basic");
 Shader blockShader(L"Block");
-Shader skyboxShader(L"Skybox");
-
-Texture textureSky(L"skybox");
 World world;
 Player player(&world, Vector3(0, 4, 10));
 OrthographicCamera hudCamera(1280, 720);
-
-Light light;
-Skybox skybox;
-
 
 /// <summary>
 /// Creates a new game
@@ -81,13 +74,9 @@ void Game::Initialize(HWND window, int width, int height, GameMode mode) {
 
 	basicShader.Create(m_deviceResources.get());
 	blockShader.Create(m_deviceResources.get());
-	skyboxShader.Create(m_deviceResources.get());
 	GenerateInputLayout<VertexLayout_PositionColor>(m_deviceResources.get(), &basicShader);
 	//GenerateInputLayout<VertexLayout_PositionNormalUV>(m_deviceResources.get(), &blockShader);
 	GenerateInputLayout<VertexLayout_PositionNormalUVInstanced>(m_deviceResources.get(), &blockShader);
-	
-	// Initialize textures
-	textureSky.Create(m_deviceResources.get());
 
 	// Initialize GPU resources
 	gpuResources.Create(m_deviceResources.get());
@@ -99,16 +88,14 @@ void Game::Initialize(HWND window, int width, int height, GameMode mode) {
 	hudCamera.UpdateSize((float)width, (float)height);
 
 	// Initialize world
-	light.Generate(m_deviceResources.get());
-	//world.Generate(m_deviceResources.get(),786768768876,treeThreshold);
 	world.Generate(m_deviceResources.get(),mode);
-	skybox.Generate(m_deviceResources.get());
 
 
 	if (mode != GAME) {
 		// Initialize ImGui
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImPlot3D::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
@@ -181,20 +168,15 @@ void Game::Render(DX::StepTimer const& timer) {
 
 	// Draw Skybox
 
-	skyboxShader.Apply(m_deviceResources.get());
-
 	player.GetCamera()->ApplyCamera(m_deviceResources.get());
-	textureSky.Apply(m_deviceResources.get());
-
-	skybox.Draw(m_deviceResources.get());
+	world.GetScene()->DrawSkybox(m_deviceResources.get());
 	
 	// Draw World
-
-	player.GetCamera()->ApplyCamera(m_deviceResources.get());
-	light.Apply(m_deviceResources.get());
-
 	blockShader.Apply(m_deviceResources.get());
+	player.GetCamera()->ApplyCamera(m_deviceResources.get());
 	world.Draw(player.GetCamera(), m_deviceResources.get());
+
+	world.GetScene()->ApplyDirectionalLight(m_deviceResources.get());
 	player.Draw(m_deviceResources.get());
 	
 
@@ -293,28 +275,6 @@ void Game::Im(DX::StepTimer const& timer)
 		ImGui::End();
 	}
 	else if (m_mode == SCENE_EDITOR) {
-		ImGui::Begin("Scenes", NULL);
-		ImGui::SetWindowCollapsed(false);
-		ImGui::SetWindowSize(ImVec2(500, 600), ImGuiCond_Always);
-
-		if (ImGui::CollapsingHeader("Scenes")) {
-			ImGui::Button("Scene 1");
-			ImGui::Button("Scene 2");
-
-			ImGui::Spacing();
-
-			ImGui::Text("Scene name ");
-			ImGui::SameLine();
-			ImGui::Button("Add new scene");
-		}
-
-		if (ImGui::CollapsingHeader("Objects")) {
-			ImGui::Button("Obj 1");
-			ImGui::Button("Obj 2");
-		}
-
-		ImGui::End();
-
 		world.GetScene()->Im();
 	}
 

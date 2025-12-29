@@ -65,6 +65,18 @@ public:
 	/// <param name="screenNear">The screen's near plane</param>
 	void GenerateProjectionMatrix(float screenDepth, float screenNear);
 
+	/// <summary>
+	/// Sets the direction of the directional light
+	/// </summary>
+	/// <param name="direction">The new direction</param>
+	void SetDirection(Vector3 direction);
+
+	/// <summary>
+	/// Gets the direction of the light
+	/// </summary>
+	/// <returns>The direction</returns>
+	const Vector3& GetDirection();
+
 private:
 
 

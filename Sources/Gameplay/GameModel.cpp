@@ -8,7 +8,8 @@
 
 
 
-GameModel::GameModel(std::wstring &id,std::wstring &filePath, DeviceResources* deviceRes)
+GameModel::GameModel(std::wstring &id, std::wstring materialId,std::wstring &filePath, DeviceResources* deviceRes) : 
+	idCounter(0), materialId(materialId)
 {
 	this->id = id;
 
@@ -18,13 +19,14 @@ GameModel::GameModel(std::wstring &id,std::wstring &filePath, DeviceResources* d
 	LoadFromOBJ(filePath, deviceRes);
 }
 
-void GameModel::PushTriangle(Vector3 a, Vector3 b, Vector3 c, Vector3 normal,
+void GameModel::PushTriangle(Vector3 a, Vector3 b, Vector3 c,
+	Vector3 na, Vector3 nb, Vector3 nc,
 	Vector2 uva, Vector2 uvb, Vector2 uvc, bool front)
 {
 
-	auto aIdx = vb.PushVertex({ ToVec4(a), ToVec4Normal(normal), uva });
-	auto bIdx = vb.PushVertex({ ToVec4(b), ToVec4Normal(normal), uvb });
-	auto cIdx = vb.PushVertex({ ToVec4(c), ToVec4Normal(normal), uvc });
+	auto aIdx = vb.PushVertex({ ToVec4(a), ToVec4Normal(na), uva });
+	auto bIdx = vb.PushVertex({ ToVec4(b), ToVec4Normal(nb), uvb });
+	auto cIdx = vb.PushVertex({ ToVec4(c), ToVec4Normal(nc), uvc });
 
 	if (front) {
 		ib.PushTriangle(aIdx, bIdx, cIdx);
@@ -90,7 +92,8 @@ void GameModel::LoadFromOBJ(std::wstring &filePath, DeviceResources* deviceRes)
 					>> i4 >> input2 >> i5 >> input2 >> i6
 					>> i7 >> input2 >> i8 >> input2 >> i9;
 
-				PushTriangle(vertexs.at(i1 - 1), vertexs.at(i4 - 1), vertexs.at(i7 - 1), normals.at(i3-1),
+				PushTriangle(vertexs.at(i1 - 1), vertexs.at(i4 - 1), vertexs.at(i7 - 1), 
+					normals.at(i3-1), normals.at(i6 - 1), normals.at(i9 - 1),
 					uvs.at(i2-1), uvs.at(i5 - 1), uvs.at(i8 - 1));
 			}
 		}
@@ -167,15 +170,27 @@ void GameModel::ResetInstanceBuffer(DeviceResources* deviceRes)
 
 GameEntity* GameModel::AddEntity(std::wstring id)
 {
-	entities.push_back(GameEntity(id));
+	entities.push_back(GameEntity(id, idCounter,this->id,materialId));
+	idCounter++;
 	return &(*(entities.end()-1));
 }
 
-GameEntity* GameModel::GetEntity(std::wstring id)
+GameEntity* GameModel::GetEntity(std::wstring name)
 {
 	std::vector<GameEntity>::iterator it;
 	for (it = entities.begin(); it != entities.end(); ++it) {
-		if (wcscmp(id.c_str(), (*it).GetID().c_str()) == 0) {
+		if (wcscmp(name.c_str(), (*it).GetName().c_str()) == 0) {
+			return &(*it);
+		}
+	}
+	return nullptr;
+}
+
+GameEntity* GameModel::GetEntity(USHORT id)
+{
+	std::vector<GameEntity>::iterator it;
+	for (it = entities.begin(); it != entities.end(); ++it) {
+		if (id == (*it).GetID()) {
 			return &(*it);
 		}
 	}
@@ -185,6 +200,32 @@ GameEntity* GameModel::GetEntity(std::wstring id)
 std::vector<GameEntity>& GameModel::GetEntities()
 {
 	return entities;
+}
+
+bool GameModel::RemoveEntity(const USHORT& id)
+{
+	std::vector<GameEntity>::iterator it;
+	for (it = entities.begin(); it != entities.end(); ++it) {
+		if (id == (*it).GetID()) {
+			entities.erase(it);
+			break;
+		}
+	}
+
+	if (entities.size() == 0) {
+		Release();
+
+		return true;
+	}
+
+	return false;
+}
+
+void GameModel::Release() {
+	entities.clear();
+	ib.Release();
+	vb.Release();
+	instbuffer.Release();
 }
 
 const std::wstring& GameModel::GetID() {

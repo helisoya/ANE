@@ -9,7 +9,10 @@ using namespace DirectX::SimpleMath;
 /// </summary>
 class GameEntity {
 private:
-	std::wstring id;
+	std::wstring name;
+	USHORT id;
+	std::wstring modelId;
+	std::wstring materialId;
 
 	Vector3 position;
 	Quaternion rotation;
@@ -20,15 +23,19 @@ private:
 
 public:
 
-	GameEntity(std::wstring id);
+	GameEntity(std::wstring name,USHORT id, std::wstring modelId, std::wstring materialId);
 
-	void SetID(const std::wstring& id);
+	void SetName(const std::wstring& name);
 	void SetPosition(const Vector3& position);
 	void SetRotation(const Vector3& rotation);
 	void SetScale(const float& scale);
 	void SetInteractable(const bool& interactable);
 
-	const std::wstring& GetID();
+	const USHORT& GetID();
+	const std::wstring& GetMaterialId();
+	const std::wstring& GetModelId();
+
+	const std::wstring& GetName();
 	const Vector3& GetPosition();
 	const Vector3& GetRotation();
 	const float& GetScale();

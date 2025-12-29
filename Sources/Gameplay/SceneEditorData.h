@@ -4,7 +4,7 @@
 #include <map>
 
 struct SceneEditorEntityData {
-	char id[64] = "Object";
+	char name[64] = "Object";
 	float position[3] = { 0,0,0 };
 	float rotation[3] = { 0,0,0 };
 	float scale = 1.0f;
@@ -18,7 +18,12 @@ public:
 	char skyBox[64] = "skybox";
 	float lightDirection[3] = { 0,0,0 };
 
+	std::vector<std::string> scenes;
 	std::map<GameEntity*, SceneEditorEntityData*> entities;
+
+
+	char newObjectMaterial[64] = "Default";
+	char newObjectModel[64] = "Crate";
 };
 
 

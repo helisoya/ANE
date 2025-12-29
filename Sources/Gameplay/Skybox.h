@@ -2,6 +2,8 @@
 
 #include "Engine/VertexLayout.h"
 #include "Engine/Buffers.h"
+#include "Engine/Shader.h"
+#include "Engine/Texture.h"
 
 /// <summary>
 /// Represents the game's skybox
@@ -13,6 +15,9 @@ private:
 	VertexBuffer<VertexLayout_PositionNormalUV> vertexBuffer;
 	IndexBuffer indexBuffer;
 
+	Shader shader;
+	Texture texture;
+
 public:
 
 	Skybox();
@@ -22,6 +27,19 @@ public:
 	/// </summary>
 	/// <param name="deviceResources">The game's device resources</param>
 	void Generate(DeviceResources* deviceResources);
+
+	/// <summary>
+	/// Changes the skybox's texture
+	/// </summary>
+	/// <param name="texture">The new texture</param>
+	/// <param name="deviceResources">The game's device resources</param>
+	void ChangeTexture(std::wstring texture, DeviceResources* deviceResources);
+	
+	/// <summary>
+	/// Gets the skybox's texture
+	/// </summary>
+	/// <returns>The new skybox</returns>
+	const std::wstring& GetTextureName();
 
 	/// <summary>
 	/// Pushs a face on the skybox
@@ -37,6 +55,12 @@ public:
 	/// </summary>
 	/// <param name="deviceResources">The game's device resources</param>
 	void Draw(DeviceResources* deviceResources);
+
+	/// <summary>
+	/// Applies the skybox's data
+	/// </summary>
+	/// <param name="deviceResources">The game's device resources</param>
+	void Apply(DeviceResources* deviceResources);
 
 private:
 

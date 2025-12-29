@@ -30,3 +30,12 @@ void Texture::Apply(DeviceResources* deviceRes) {
 	ID3D11SamplerState* samplers[] = { samplerState.Get() };
 	d3dContext->PSSetSamplers(0, 1, samplers);
 }
+
+void Texture::Release() {
+	textureRV.ReleaseAndGetAddressOf();
+	samplerState.ReleaseAndGetAddressOf();
+}
+
+const std::wstring& Texture::GetName() {
+	return textureName;
+}

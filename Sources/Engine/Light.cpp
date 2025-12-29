@@ -4,7 +4,7 @@
 
 Light::Light()
 {
-	direction = Vector3::Up + Vector3::Right;
+	direction = Vector3(0,1,0.5);
 	position = Vector3::Up * 70;
 	lookAt = position + direction;
 		
@@ -48,6 +48,21 @@ void Light::GenerateProjectionMatrix(float screenDepth, float screenNear)
 	//projection = Matrix::CreateOrthographic(512, 512, screenDepth, screenNear);
 	//projection = Matrix::CreatePerspective(512, 512, screenDepth, screenNear);
 	projection = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+}
+
+void Light::SetDirection(Vector3 direction)
+{
+	if (direction.x == 0 && direction.y == 0 && direction.z == 0) return;
+
+	this->direction = direction;
+	GenerateViewMatrix();
+	GenerateProjectionMatrix(0.01f, 200.0f);
+	lookAt = position + direction;
+}
+
+const Vector3& Light::GetDirection()
+{
+	return direction;
 }
 
 
