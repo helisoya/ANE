@@ -8,8 +8,72 @@
 
 
 
-GameModel::GameModel(std::wstring &id, std::wstring materialId,std::wstring &filePath, DeviceResources* deviceRes) : 
-	idCounter(0), materialId(materialId)
+void GameModel::CreateCube(DeviceResources* deviceRes)
+{
+	ib.Release();
+	vb.Release();
+
+	// Front
+	PushTriangle(Vector3(-0.5, -0.5, -0.5), Vector3(-0.5, 0.5, -0.5), Vector3(0.5, -0.5, -0.5)
+		,Vector3::Forward, Vector3::Forward, Vector3::Forward,
+		Vector2(0,0),Vector2(1,0),Vector2(0,1),false);
+	PushTriangle(Vector3(0.5, 0.5, -0.5), Vector3(-0.5, 0.5, -0.5), Vector3(0.5, -0.5, -0.5)
+		, Vector3::Forward, Vector3::Forward, Vector3::Forward,
+		Vector2(1, 1), Vector2(1, 0), Vector2(0, 1), true);
+
+	// Left
+	PushTriangle(Vector3(-0.5, -0.5, 0.5), Vector3(-0.5, 0.5, 0.5), Vector3(-0.5, -0.5, -0.5)
+		, Vector3::Left, Vector3::Left, Vector3::Left,
+		Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), false);
+	PushTriangle(Vector3(-0.5, 0.5, -0.5), Vector3(-0.5, 0.5, 0.5), Vector3(-0.5, -0.5, -0.5)
+		, Vector3::Left, Vector3::Left, Vector3::Left,
+		Vector2(1, 1), Vector2(1, 0), Vector2(0, 1), true);
+
+	// Right
+	PushTriangle(Vector3(0.5, -0.5, 0.5), Vector3(0.5, 0.5, 0.5), Vector3(0.5, -0.5, -0.5)
+		, Vector3::Right, Vector3::Right, Vector3::Right,
+		Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), true);
+	PushTriangle(Vector3(0.5, 0.5, -0.5), Vector3(0.5, 0.5, 0.5), Vector3(0.5, -0.5, -0.5)
+		, Vector3::Right, Vector3::Right, Vector3::Right,
+		Vector2(1, 1), Vector2(1, 0), Vector2(0, 1), false);
+
+	// Back
+	PushTriangle(Vector3(-0.5, -0.5, 0.5), Vector3(-0.5, 0.5, 0.5), Vector3(0.5, -0.5, 0.5)
+		, Vector3::Backward, Vector3::Backward, Vector3::Backward,
+		Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), true);
+	PushTriangle(Vector3(0.5, 0.5, 0.5), Vector3(-0.5, 0.5, 0.5), Vector3(0.5, -0.5, 0.5)
+		, Vector3::Backward, Vector3::Backward, Vector3::Backward,
+		Vector2(1, 1), Vector2(1, 0), Vector2(0, 1), false);
+
+	// Up
+	PushTriangle(Vector3(-0.5, 0.5, -0.5), Vector3(-0.5, 0.5, 0.5), Vector3(0.5, 0.5, -0.5)
+		, Vector3::Up, Vector3::Up, Vector3::Up,
+		Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), false);
+	PushTriangle(Vector3(0.5, 0.5, 0.5), Vector3(-0.5, 0.5, 0.5), Vector3(0.5, 0.5, -0.5)
+		, Vector3::Up, Vector3::Up, Vector3::Up,
+		Vector2(1, 1), Vector2(1, 0), Vector2(0, 1), true);
+
+	// Up
+	PushTriangle(Vector3(-0.5, -0.5, -0.5), Vector3(-0.5, -0.5, 0.5), Vector3(0.5, -0.5, -0.5)
+		, Vector3::Down, Vector3::Down, Vector3::Down,
+		Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), true);
+	PushTriangle(Vector3(0.5, -0.5, 0.5), Vector3(-0.5, -0.5, 0.5), Vector3(0.5, -0.5, -0.5)
+		, Vector3::Down, Vector3::Down, Vector3::Down,
+		Vector2(1, 1), Vector2(1, 0), Vector2(0, 1), false);
+
+	vb.Create(deviceRes);
+	ib.Create(deviceRes);
+}
+
+GameModel::GameModel(DeviceResources* deviceRes) : materialId(L"None")
+{
+	this->id = L"Cube";
+	instbuffer.data = {};
+	instbuffer.Create(deviceRes);
+}
+
+GameModel::GameModel(std::wstring &id, std::wstring materialId,std::wstring &filePath, DeviceResources* deviceRes) :
+	materialId(materialId)
 {
 	this->id = id;
 
@@ -168,10 +232,13 @@ void GameModel::ResetInstanceBuffer(DeviceResources* deviceRes)
 	instbuffer.UpdateBuffer(deviceRes);
 }
 
-GameEntity* GameModel::AddEntity(std::wstring id)
+GameEntity* GameModel::AddEntity(std::wstring name)
 {
-	entities.push_back(GameEntity(id, idCounter,this->id,materialId));
-	idCounter++;
+	while (GetEntity(name) != nullptr) {
+		name.append(L"I");
+	}
+
+	entities.push_back(GameEntity(name,this->id,materialId));
 	return &(*(entities.end()-1));
 }
 
@@ -186,27 +253,17 @@ GameEntity* GameModel::GetEntity(std::wstring name)
 	return nullptr;
 }
 
-GameEntity* GameModel::GetEntity(USHORT id)
-{
-	std::vector<GameEntity>::iterator it;
-	for (it = entities.begin(); it != entities.end(); ++it) {
-		if (id == (*it).GetID()) {
-			return &(*it);
-		}
-	}
-	return nullptr;
-}
 
 std::vector<GameEntity>& GameModel::GetEntities()
 {
 	return entities;
 }
 
-bool GameModel::RemoveEntity(const USHORT& id)
+bool GameModel::RemoveEntity(const std::wstring& name)
 {
 	std::vector<GameEntity>::iterator it;
 	for (it = entities.begin(); it != entities.end(); ++it) {
-		if (id == (*it).GetID()) {
+		if (wcscmp(name.c_str(), (*it).GetName().c_str())) {
 			entities.erase(it);
 			break;
 		}
@@ -219,6 +276,12 @@ bool GameModel::RemoveEntity(const USHORT& id)
 	}
 
 	return false;
+}
+
+void GameModel::RemoveAllEntities(bool releaseAfterwards)
+{
+	entities.clear();
+	if (releaseAfterwards) Release();
 }
 
 void GameModel::Release() {

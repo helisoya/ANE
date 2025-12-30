@@ -54,7 +54,7 @@ GameModel* Material::AddModel(std::wstring modelID, DeviceResources* deviceRes)
 	return &(*(gameModels.end()-1));
 }
 
-bool Material::RemoveEntity(const std::wstring& modelId,const USHORT& entityId)
+bool Material::RemoveEntity(const std::wstring& modelId,const std::wstring& entityId)
 {
 	std::vector<GameModel>::iterator it;
 	for (it = gameModels.begin(); it != gameModels.end(); ++it) {

@@ -18,9 +18,19 @@ private:
 
 	std::vector<GameEntity> entities;
 
-	USHORT idCounter;
-
 public:
+
+	/// <summary>
+	/// Creates a cube
+	/// </summary>
+	/// <param name="deviceRes">The device resources</param>
+	void CreateCube(DeviceResources* deviceRes);
+
+	/// <summary>
+	/// Creates a new empty game model
+	/// </summary>
+	/// <param name="deviceRes">The device resources</param>
+	GameModel(DeviceResources* deviceRes);
 
 	/// <summary>
 	/// Creates a new game model
@@ -66,13 +76,6 @@ public:
 	GameEntity* GetEntity(std::wstring name);
 
 	/// <summary>
-	/// Gets an entity from the list
-	/// </summary>
-	/// <param name="id">The entity's id</param>
-	/// <returns>The entity if it exists</returns>
-	GameEntity* GetEntity(USHORT id);
-
-	/// <summary>
 	/// Gets the entities of this model
 	/// </summary>
 	/// <returns>The entities</returns>
@@ -83,7 +86,13 @@ public:
 	/// </summary>
 	/// <param name="id">The entity's id</param>
 	/// <returns>True if the model has no entities and should be deleted</returns>
-	bool RemoveEntity(const USHORT& id);
+	bool RemoveEntity(const std::wstring& name);
+
+	/// <summary>
+	/// Removes all entities from this model
+	/// </summary>
+	/// <param name="releaseAfterwards">True if the model's data should be purged too</param>
+	void RemoveAllEntities(bool releaseAfterwards);
 
 	/// <summary>
 	/// Gets the Model's ID

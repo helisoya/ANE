@@ -60,7 +60,7 @@ public:
 	/// <param name="modelId">The model's ID</param>
 	/// <param name="entityId">The entity's ID</param>
 	/// <returns>True if the material has no linked model</returns>
-	bool RemoveEntity(const std::wstring& modelId, const USHORT& entityId);
+	bool RemoveEntity(const std::wstring& modelId, const std::wstring& entityId);
 
 	/// <summary>
 	/// Removes an entire model from the material's list

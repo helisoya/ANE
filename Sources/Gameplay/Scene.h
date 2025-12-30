@@ -9,6 +9,7 @@
 #include "Gameplay/SceneEditorData.h"
 #include "Engine/Light.h"
 #include "Gameplay/Skybox.h"
+#include "Gameplay/Interaction.h"
 
 
 /// <summary>
@@ -17,6 +18,7 @@
 class Scene {
 
 	std::vector<Material> materials;
+	std::vector<Interaction> interactions;
 
 	Skybox skybox;
 
@@ -124,12 +126,32 @@ public:
 	Material* GetMaterial(std::wstring materialId);
 
 	/// <summary>
+	/// Adds a new interaction point to the scene
+	/// </summary>
+	/// <param name="name">The interaction's name</param>
+	/// <returns>The interaction</returns>
+	Interaction* AddInteraction(std::wstring name);
+
+	/// <summary>
+	/// Gets's an interaction point from the scene
+	/// </summary>
+	/// <param name="name">The interaction's name</param>
+	/// <returns>The interaction</returns>
+	Interaction* GetInteraction(std::wstring name);
+
+	/// <summary>
+	/// Removes an interaction from the scene
+	/// </summary>
+	/// <param name="name">The interaction's name</param>
+	void RemoveInteraction(const std::wstring& name);
+
+	/// <summary>
 	/// Removes an entity from a model
 	/// </summary>
 	/// <param name="materialId">The linked material</param>
 	/// <param name="modelId">The model's ID</param>
 	/// <param name="id">The Entity's ID</param>
-	void RemoveEntity(const std::wstring& materialId,const std::wstring& modelId, const USHORT& id);
+	void RemoveEntity(const std::wstring& materialId,const std::wstring& modelId, const std::wstring& id);
 
 	/// <summary>
 	/// Removes a model from a material
@@ -154,4 +176,9 @@ private:
 	/// Regenerates the scene editor data
 	/// </summary>
 	void RegenerateSceneEditorData();
+
+	/// <summary>
+	/// Clears the current scene editor's data
+	/// </summary>
+	void ClearCurrentSceneEditorDataContent();
 };
