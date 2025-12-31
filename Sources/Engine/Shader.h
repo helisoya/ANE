@@ -6,9 +6,12 @@ using Microsoft::WRL::ComPtr;
 /// <summary>
 /// Represents a shader
 /// </summary>
+/// <typeparam name="TInputLayout">The inputLayout type</typeparam>
+template<typename TInputLayout>
 class Shader {
 	std::wstring shaderName;
 	std::vector<uint8_t> psBytecode;
+	ComPtr<ID3D11InputLayout> inputLayout;
 
 	ComPtr<ID3D11VertexShader>	vertexShader;
 	ComPtr<ID3D11PixelShader>	pixelShader;
@@ -20,43 +23,30 @@ public:
 	/// Creates the shader
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
-	void Create(DeviceResources* deviceRes);
+	void Create(DeviceResources* deviceRes) {
+		auto d3dDevice = deviceRes->GetD3DDevice();
+		vsBytecode = DX::ReadData((std::wstring(L"Resources/Shaders/Compiled/") + shaderName + L"_vs.cso").c_str());
+		psBytecode = DX::ReadData((std::wstring(L"Resources/Shaders/Compiled/") + shaderName + L"_ps.cso").c_str());
+
+		d3dDevice->CreateVertexShader(vsBytecode.data(), vsBytecode.size(), nullptr, vertexShader.ReleaseAndGetAddressOf());
+		d3dDevice->CreatePixelShader(psBytecode.data(), psBytecode.size(), nullptr, pixelShader.ReleaseAndGetAddressOf());
+
+		deviceRes->GetD3DDevice()->CreateInputLayout(
+			typename TInputLayout::InputElementDescs.data(),
+			typename TInputLayout::InputElementDescs.size(),
+			vsBytecode.data(),
+			vsBytecode.size(),
+			inputLayout.ReleaseAndGetAddressOf());
+	}
 
 	/// <summary>
 	/// Applies the shader
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
-	void Apply(DeviceResources* deviceRes);
+	void Apply(DeviceResources* deviceRes) {
+		auto d3dContext = deviceRes->GetD3DDeviceContext();
+		d3dContext->VSSetShader(vertexShader.Get(), nullptr, 0);
+		d3dContext->PSSetShader(pixelShader.Get(), nullptr, 0);
+		deviceRes->GetD3DDeviceContext()->IASetInputLayout(inputLayout.Get());
+	}
 };
-
-extern std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11InputLayout>> g_inputLayouts;
-
-/// <summary>
-/// Generates an input layout
-/// </summary>
-/// <typeparam name="T">The input layout's elements</typeparam>
-/// <param name="deviceRes">The game's device resources</param>
-/// <param name="basicShader">The linked shader</param>
-template <typename T>
-void GenerateInputLayout(DeviceResources* deviceRes, Shader* basicShader) {
-	auto it = g_inputLayouts.find(typeid(T).name());
-	if (it != g_inputLayouts.end()) return;
-	deviceRes->GetD3DDevice()->CreateInputLayout(
-		typename T::InputElementDescs.data(),
-		typename T::InputElementDescs.size(),
-		basicShader->vsBytecode.data(),
-		basicShader->vsBytecode.size(),
-		g_inputLayouts[typeid(T).name()].ReleaseAndGetAddressOf());
-}
-
-/// <summary>
-/// Applies an input layout
-/// </summary>
-/// <typeparam name="T">The input layout's elements</typeparam>
-/// <param name="deviceRes">The game's device resources</param>
-template <typename T>
-void ApplyInputLayout(DeviceResources* deviceRes) {
-	auto it = g_inputLayouts.find(typeid(T).name());
-	assert(it != g_inputLayouts.end());
-	deviceRes->GetD3DDeviceContext()->IASetInputLayout(it->second.Get());
-}

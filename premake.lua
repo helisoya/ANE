@@ -14,7 +14,7 @@ project "ANE"
 	targetname "ANE"
 	targetdir "Bin/$(Platform)/$(Configuration)"
 	objdir "Obj/$(Platform)/$(Configuration)"
-	debugdir "Resources"
+	debugdir "./"
 
 	dependson "DirectXTK_Desktop_2022"
 
@@ -65,6 +65,7 @@ project "ANE"
 		defines { "DEBUG" }
 		symbols "On"
 		debugargs { "Debug" }
+		postbuildcommands {"{RMDIR} %[Bin/$(Platform)/$(Configuration)/Resources/]" , "{COPYDIR} %[Resources/] %[Bin/$(Platform)/$(Configuration)/Resources/]" }
 		libdirs {
 			"Deps/DirectXTK/Bin/Desktop_2022/x64/Debug/",
 		}
@@ -73,6 +74,7 @@ project "ANE"
 		defines { "DEBUG" }
 		symbols "On"
 		debugargs { "SceneEditor" }
+		postbuildcommands {"{RMDIR} %[Bin/$(Platform)/$(Configuration)/Resources/]" , "{COPYDIR} %[Resources/] %[Bin/$(Platform)/$(Configuration)/Resources/]" }
 		libdirs {
 			"Deps/DirectXTK/Bin/Desktop_2022/x64/Debug/",
 		}
@@ -81,6 +83,7 @@ project "ANE"
 		defines { "NDEBUG" }
 		optimize "On"
 		debugargs { "Game" }
+		postbuildcommands {"{RMDIR} %[Bin/$(Platform)/$(Configuration)/Resources/]" , "{COPYDIR} %[Resources/] %[Bin/$(Platform)/$(Configuration)/Resources/]" }
 		libdirs {
 			"Deps/DirectXTK/Bin/Desktop_2022/x64/Release/",
 		}

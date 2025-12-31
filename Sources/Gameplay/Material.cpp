@@ -2,6 +2,8 @@
 
 #include "Material.h"
 #include "Utils.h"
+#include <iostream>
+#include <filesystem>
 
 
 
@@ -47,11 +49,16 @@ GameModel* Material::AddModel(std::wstring modelID, DeviceResources* deviceRes)
 
 
 	std::wstring fullPath;
-	fullPath.append(L"Models/Scenes/");
+	fullPath.append(L"Resources/Models/Scenes/");
 	fullPath.append(modelID.c_str());
 	fullPath.append(L".obj");
-	gameModels.push_back(GameModel(modelID,id, fullPath, deviceRes));
-	return &(*(gameModels.end()-1));
+
+	if (std::filesystem::exists(fullPath)) {
+		gameModels.push_back(GameModel(modelID, id, fullPath, deviceRes));
+		return &(*(gameModels.end() - 1));
+	}
+
+	return nullptr;
 }
 
 bool Material::RemoveEntity(const std::wstring& modelId,const std::wstring& entityId)

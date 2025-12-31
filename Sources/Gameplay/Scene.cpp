@@ -41,7 +41,7 @@ void Scene::Generate(DeviceResources* deviceRes, GameMode mode) {
 
 
 void Scene::Draw(DeviceResources* deviceRes) {
-	if (!mode == SCENE_EDITOR || editorData->drawEntities) {
+	if (mode != SCENE_EDITOR || editorData->drawEntities) {
 		std::vector<Material>::iterator it;
 		for (it = materials.begin(); it != materials.end(); ++it) {
 			it->Draw(deviceRes, false);
@@ -99,7 +99,7 @@ void Scene::SaveScene()
 {
 	std::ofstream fout;
 
-	std::string path = "Scenes/";
+	std::string path = "Resources/Scenes/";
 
 	char* ca = toChar(currentId.c_str());
 
@@ -213,7 +213,7 @@ void Scene::LoadScene(std::wstring filepath)
 	Interaction* interaction;
 
 	std::wstring correctPath;
-	correctPath.append(L"Scenes/");
+	correctPath.append(L"Resources/Scenes/");
 	correctPath.append(filepath);
 	correctPath.append(L".scene");
 
@@ -306,10 +306,12 @@ void Scene::DeleteSceneFromDisk()
 {
 	if (mode == SCENE_EDITOR) {
 		std::wstring path;
-		path.append(L"Scenes/");
+		path.append(L"Resources/Scenes/");
 		path.append(currentId.c_str());
 		path.append(L".scene");
-		_wremove(path.c_str());
+		if (std::filesystem::exists(path)) {
+			std::filesystem::remove(path);
+		}
 	}
 }
 
@@ -889,7 +891,7 @@ void Scene::RegenerateSceneEditorData()
 
 	/// Global data
 	editorData->scenes.clear();
-	std::string path = "Scenes/";
+	std::string path = "Resources/Scenes/";
 	for (const auto& entry : std::filesystem::directory_iterator(path)) {
 		editorData->scenes.push_back(entry.path().filename().replace_extension("").string());
 	}

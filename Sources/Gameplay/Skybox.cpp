@@ -21,8 +21,6 @@ void Skybox::Generate(DeviceResources* deviceResources)
 
 	shader.Create(deviceResources);
 	texture.Create(deviceResources);
-
-	GenerateInputLayout<VertexLayout_PositionNormalUVInstanced>(deviceResources, &shader);
 }
 
 void Skybox::ChangeTexture(std::wstring texture, DeviceResources* deviceResources)

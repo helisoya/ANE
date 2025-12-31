@@ -5,6 +5,7 @@
 #include "Engine/Shader.h"
 #include "Engine/Texture.h"
 
+
 /// <summary>
 /// Represents the game's skybox
 /// </summary>
@@ -15,7 +16,7 @@ private:
 	VertexBuffer<VertexLayout_PositionNormalUV> vertexBuffer;
 	IndexBuffer indexBuffer;
 
-	Shader shader;
+	Shader<VertexLayout_PositionNormalUV> shader;
 	Texture texture;
 
 public:

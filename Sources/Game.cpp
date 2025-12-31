@@ -29,8 +29,8 @@ using Microsoft::WRL::ComPtr;
 
 // Global stuff
 DefaultResources gpuResources;
-Shader basicShader(L"Basic");
-Shader blockShader(L"Block");
+Shader<VertexLayout_PositionColor> basicShader(L"Basic");
+Shader<VertexLayout_PositionNormalUVInstanced> blockShader(L"Block");
 World world;
 Player player(&world, Vector3(0, 4, 10));
 OrthographicCamera hudCamera(1280, 720);
@@ -47,7 +47,6 @@ Game::Game() noexcept(false) {
 /// Destroys the game
 /// </summary>
 Game::~Game() {
-	g_inputLayouts.clear();
 }
 
 /// <summary>
@@ -74,9 +73,6 @@ void Game::Initialize(HWND window, int width, int height, GameMode mode) {
 
 	basicShader.Create(m_deviceResources.get());
 	blockShader.Create(m_deviceResources.get());
-	GenerateInputLayout<VertexLayout_PositionColor>(m_deviceResources.get(), &basicShader);
-	//GenerateInputLayout<VertexLayout_PositionNormalUV>(m_deviceResources.get(), &blockShader);
-	GenerateInputLayout<VertexLayout_PositionNormalUVInstanced>(m_deviceResources.get(), &blockShader);
 
 	// Initialize GPU resources
 	gpuResources.Create(m_deviceResources.get());
@@ -162,12 +158,10 @@ void Game::Render(DX::StepTimer const& timer) {
 	context->OMSetRenderTargets(1, &renderTarget, depthStencil);
 	
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
-	//ApplyInputLayout<VertexLayout_PositionNormalUV>(m_deviceResources.get());
-	ApplyInputLayout<VertexLayout_PositionNormalUVInstanced>(m_deviceResources.get());
+
 
 	// Draw Skybox
-
+	world.GetScene()->ApplySkybox(m_deviceResources.get());
 	player.GetCamera()->ApplyCamera(m_deviceResources.get());
 	world.GetScene()->DrawSkybox(m_deviceResources.get());
 	
@@ -183,7 +177,6 @@ void Game::Render(DX::StepTimer const& timer) {
 	// Draw UI
 
 	hudCamera.ApplyCamera(m_deviceResources.get());
-	ApplyInputLayout<VertexLayout_PositionColor>(m_deviceResources.get());
 	basicShader.Apply(m_deviceResources.get());
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	context->Draw(4, 0);
