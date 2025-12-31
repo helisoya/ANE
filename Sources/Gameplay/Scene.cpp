@@ -41,15 +41,19 @@ void Scene::Generate(DeviceResources* deviceRes, GameMode mode) {
 
 
 void Scene::Draw(DeviceResources* deviceRes) {
+
+	bool useInstancing = false;
+	if (mode == SCENE_EDITOR && editorData->useInstancing) useInstancing = true;
+
 	if (mode != SCENE_EDITOR || editorData->drawEntities) {
 		std::vector<Material>::iterator it;
 		for (it = materials.begin(); it != materials.end(); ++it) {
-			it->Draw(deviceRes, false);
+			it->Draw(deviceRes, useInstancing);
 		}
 	}
 	if (mode == SCENE_EDITOR && editorData->drawInteractions) {
 		editorData->interactionsTexture->Apply(deviceRes);
-		editorData->interactionsModel->Draw(deviceRes, false);
+		editorData->interactionsModel->Draw(deviceRes, useInstancing);
 	}
 }
 
@@ -447,6 +451,8 @@ void Scene::Im()
 	// Global scene edition
 	ImGui::Begin("Scenes", NULL);
 	ImGui::SetWindowSize(ImVec2(400, 600), ImGuiCond_Always);
+
+	ImGui::Checkbox("Allow Instancing (Rendering)", &editorData->useInstancing);
 
 	if (ImGui::CollapsingHeader("Scenes")) {
 		for (int i = 0; i < editorData->scenes.size(); i++) {

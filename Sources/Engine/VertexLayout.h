@@ -87,20 +87,27 @@ struct VertexLayout_PositionNormalUV {
 struct VertexLayout_PositionNormalUVInstanced {
 	// Constructor for ease of use
 	VertexLayout_PositionNormalUVInstanced() = default;
-	VertexLayout_PositionNormalUVInstanced(Vector4 const& pos, Vector4 const& normal, Vector2 const& uv, Vector3 const& instancePos) noexcept : position(pos), normal(normal), uv(uv), instancePos(instancePos) { }
+	VertexLayout_PositionNormalUVInstanced(Vector4 const& pos, Vector4 const& normal, Vector2 const& uv, Vector3 const& instancePos) noexcept : position(pos), normal(normal), uv(uv),
+		instanceMat0(instanceMat0), instanceMat1(instanceMat1), instanceMat2(instanceMat2), instanceMat3(instanceMat3) {}
 
 	// The actual data inside the struct
 	Vector4 position;
 	Vector4 normal;
 	Vector2 uv;
-	Vector3 instancePos;
+	Vector4 instanceMat0;
+	Vector4 instanceMat1;
+	Vector4 instanceMat2;
+	Vector4 instanceMat3;
 
 	// Input Layout Descriptor
 	static inline const std::vector<D3D11_INPUT_ELEMENT_DESC> InputElementDescs = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "INSTANCEPOS", 0, DXGI_FORMAT_R32G32B32_FLOAT,    1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+		{ "INSTANCEMAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,    1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{ "INSTANCEMAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT,    1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{ "INSTANCEMAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT,    1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		{ "INSTANCEMAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT,    1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1 }
 	};
 };
 

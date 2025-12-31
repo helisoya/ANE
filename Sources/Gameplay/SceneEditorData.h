@@ -51,6 +51,7 @@ public:
 	bool drawEntities = true;
 	bool drawMarkers = true;
 	bool drawInteractions = true;
+	bool useInstancing = false;
 
 	GameModel* interactionsModel;
 	Texture* interactionsTexture;

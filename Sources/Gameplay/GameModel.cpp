@@ -200,9 +200,8 @@ void GameModel::Draw(DeviceResources* deviceRes, bool isInstanced) {
 	else {
 		// If instanced, add the instance buffer to the vertex buffer, then draw
 		ResetInstanceBuffer(deviceRes);
-
 		
-		UINT strides[2] = { sizeof(VertexLayout_PositionNormalUV), sizeof(Matrix) };
+		UINT strides[2] = { sizeof(VertexLayout_PositionNormalUV), sizeof(Vector4)*4 };
 		UINT offsets[2] = { 0, 0 };
 
 		ID3D11Buffer* vertInstBuffers[2] = { vb.get().Get(), instbuffer.get().Get() };
@@ -214,7 +213,7 @@ void GameModel::Draw(DeviceResources* deviceRes, bool isInstanced) {
 		ib.Apply(deviceRes);
 		//Set the models vertex buffer
 		deviceRes->GetD3DDeviceContext()->IASetVertexBuffers(0, 2, vertInstBuffers, strides, offsets);
-		deviceRes->GetD3DDeviceContext()->DrawIndexedInstanced(ib.Size(), instbuffer.Size(), 0, 0, 0);
+		deviceRes->GetD3DDeviceContext()->DrawIndexedInstanced(ib.Size(), entities.size(), 0, 0, 0);
 		
 	}
 
@@ -223,13 +222,18 @@ void GameModel::Draw(DeviceResources* deviceRes, bool isInstanced) {
 
 void GameModel::ResetInstanceBuffer(DeviceResources* deviceRes)
 {
-	instbuffer.Clear();
+	instbuffer.Release();
 
 	std::vector<GameEntity>::iterator it;
+	Matrix transposed;
 	for (it = entities.begin(); it != entities.end(); ++it) {
-		instbuffer.data.push_back((*it).GetPosition());
+		transposed = (*it).GetWorldMatrix();
+		instbuffer.data.push_back(Vector4(transposed.m[0]));
+		instbuffer.data.push_back(Vector4(transposed.m[1]));
+		instbuffer.data.push_back(Vector4(transposed.m[2]));
+		instbuffer.data.push_back(Vector4(transposed.m[3]));
 	}
-	instbuffer.UpdateBuffer(deviceRes);
+	instbuffer.Create(deviceRes);
 }
 
 GameEntity* GameModel::AddEntity(std::wstring name)
@@ -263,7 +267,7 @@ bool GameModel::RemoveEntity(const std::wstring& name)
 {
 	std::vector<GameEntity>::iterator it;
 	for (it = entities.begin(); it != entities.end(); ++it) {
-		if (wcscmp(name.c_str(), (*it).GetName().c_str())) {
+		if (wcscmp(name.c_str(), (*it).GetName().c_str()) == 0) {
 			entities.erase(it);
 			break;
 		}

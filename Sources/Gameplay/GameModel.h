@@ -10,7 +10,7 @@
 class GameModel {
 private:
 	VertexBuffer<VertexLayout_PositionNormalUV> vb;
-	VertexBuffer<Vector3> instbuffer;
+	VertexBuffer<Vector4> instbuffer;
 	IndexBuffer ib;
 
 	std::wstring id;
