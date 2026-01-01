@@ -10,6 +10,7 @@
 #include "Engine/Light.h"
 #include "Gameplay/Skybox.h"
 #include "Gameplay/Interaction.h"
+#include "Gameplay/Marker.h"
 
 
 /// <summary>
@@ -19,6 +20,7 @@ class Scene {
 
 	std::vector<Material> materials;
 	std::vector<Interaction> interactions;
+	std::vector<Marker> markers;
 
 	Skybox skybox;
 
@@ -144,6 +146,26 @@ public:
 	/// </summary>
 	/// <param name="name">The interaction's name</param>
 	void RemoveInteraction(const std::wstring& name);
+
+	/// <summary>
+	/// Adds a new marker point to the scene
+	/// </summary>
+	/// <param name="name">The marker's name</param>
+	/// <returns>The marker</returns>
+	Marker* AddMarker(std::wstring name);
+
+	/// <summary>
+	/// Gets's a marker from the scene
+	/// </summary>
+	/// <param name="name">The marker's name</param>
+	/// <returns>The marker</returns>
+	Marker* GetMarker(std::wstring name);
+
+	/// <summary>
+	/// Removes a marker from the scene
+	/// </summary>
+	/// <param name="name">The marker's name</param>
+	void RemoveMarker(const std::wstring& name);
 
 	/// <summary>
 	/// Removes an entity from a model

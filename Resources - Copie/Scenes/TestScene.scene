@@ -1,7 +1,0 @@
-S skybox 
-L 0 1 0.5 
-E Default Crate Obj1 0 0 0 -0 0 0 2 2 2 
-E Default Crate Obj2 5 0 0 -0 0 0 1 1 1 
-E Harold Harold NewEntity 0 10 0 -0 0 0 1 1 1 
-I Exit 0 _ _ _ 1 0 0 7 10 5 2 
-I Harold 1 Harold Harold NewEntity 1 0 11.25 0 6 8.5 2 

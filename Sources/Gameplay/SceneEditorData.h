@@ -4,6 +4,7 @@
 #include "GameModel.h"
 #include "Engine/Texture.h"
 #include "Interaction.h"
+#include "Marker.h"
 #include <map>
 
 struct SceneEditorEntityData {
@@ -11,6 +12,14 @@ struct SceneEditorEntityData {
 	float position[3] = { 0,0,0 };
 	float rotation[3] = { 0,0,0 };
 	float scale[3] = { 1.0f ,1.0f,1.0f };
+};
+
+struct SceneEditorMarkerData {
+	char name[64] = "Object";
+	float position[3] = { 0,0,0 };
+	float rotation[3] = { 0,0,0 };
+
+	GameEntity* previewEntity;
 };
 
 struct SceneEditorInteractionData {
@@ -37,6 +46,7 @@ public:
 
 	std::map<GameEntity*, SceneEditorEntityData*> entities;
 	std::map<Interaction*, SceneEditorInteractionData*> interactions;
+	std::map<Marker*, SceneEditorMarkerData*> markers;
 
 };
 
@@ -56,9 +66,13 @@ public:
 	GameModel* interactionsModel;
 	Texture* interactionsTexture;
 
+	GameModel* markersModel;
+	Texture* markersTexture;
+
 	char newObjectMaterial[64] = "Default";
 	char newObjectModel[64] = "Crate";
 	char newInteraction[64] = "Interaction";
+	char newMarker[64] = "Marker";
 };
 
 

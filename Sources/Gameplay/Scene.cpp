@@ -17,8 +17,12 @@ Scene::~Scene() {
 		ClearCurrentSceneEditorDataContent();
 		editorData->interactionsModel->Release();
 		editorData->interactionsTexture->Release();
+		editorData->markersTexture->Release();
+		editorData->markersModel->Release();
 		delete editorData->interactionsTexture;
 		delete editorData->interactionsModel;
+		delete editorData->markersModel;
+		delete editorData->markersTexture;
 		delete editorData;
 	}
 }
@@ -36,6 +40,12 @@ void Scene::Generate(DeviceResources* deviceRes, GameMode mode) {
 		editorData->interactionsTexture->Create(deviceRes);
 		editorData->interactionsModel = new GameModel(deviceRes);
 		editorData->interactionsModel->CreateCube(deviceRes);
+
+		editorData->markersTexture = new Texture(L"Marker");
+		editorData->markersTexture->Create(deviceRes);
+		std::wstring txt(L"Resources/Models/Editor/Marker.obj");
+		editorData->markersModel = new GameModel(deviceRes);
+		editorData->markersModel->LoadFromOBJ(txt, deviceRes);
 	}
 }
 
@@ -53,6 +63,10 @@ void Scene::Draw(DeviceResources* deviceRes) {
 	if (mode == SCENE_EDITOR && editorData->drawInteractions) {
 		editorData->interactionsTexture->Apply(deviceRes);
 		editorData->interactionsModel->Draw(deviceRes, allowInstancing);
+	}
+	if (mode == SCENE_EDITOR && editorData->drawMarkers) {
+		editorData->markersTexture->Apply(deviceRes);
+		editorData->markersModel->Draw(deviceRes, allowInstancing);
 	}
 }
 
@@ -96,6 +110,7 @@ void Scene::Reset()
 	materials.clear();
 
 	interactions.clear();
+	markers.clear();
 }
 
 void Scene::SaveScene()
@@ -125,6 +140,7 @@ void Scene::SaveScene()
 		std::vector<GameModel>::iterator itModel;
 		std::vector<GameEntity>::iterator itEntities;
 		std::vector<Interaction>::iterator itInteraction;
+		std::vector<Marker>::iterator itMarker;
 
 		for (itMat = materials.begin(); itMat != materials.end(); ++itMat) {
 			for (itModel = (*itMat).GetModels().begin(); itModel != (*itMat).GetModels().end(); ++itModel) {
@@ -186,6 +202,18 @@ void Scene::SaveScene()
 				<< itInteraction->GetScale().y << " " << itInteraction->GetScale().z << " \n";
 
 		}
+
+		for (itMarker = markers.begin(); itMarker != markers.end(); ++itMarker) {
+
+			ca = toChar(itMarker->GetName().c_str());
+			fout << "M " << ca << " ";
+			delete[] ca;
+
+			fout << itMarker->GetPosition().x << " " << itMarker->GetPosition().y << " "
+				<< itMarker->GetPosition().z << " " << itMarker->GetRotation().x << " "
+				<< itMarker->GetRotation().y << " " << itMarker->GetRotation().z << " \n";
+
+		}
 	}
 
 	fout.close();
@@ -214,6 +242,7 @@ void Scene::LoadScene(std::wstring filepath)
 	GameModel* md;
 	GameEntity* et;
 	Interaction* interaction;
+	Marker* marker;
 
 	std::wstring correctPath;
 	correctPath.append(L"Resources/Scenes/");
@@ -289,6 +318,19 @@ void Scene::LoadScene(std::wstring filepath)
 			fin >> f1 >> f2 >> f3;
 			interaction->SetScale(Vector3(f1, f2, f3));
 		}
+		else if (input == 'M') {
+			fin >> name;
+
+			wca = toWChar(name);
+			marker = AddMarker(wca);
+			delete[] wca;
+
+			fin >> f1 >> f2 >> f3;
+			marker->SetPosition(Vector3(f1, f2, f3));
+
+			fin >> f1 >> f2 >> f3;
+			marker->SetRotation(Vector3(f1, f2, f3));
+		}
 
 		while (input != '\n')
 		{
@@ -337,6 +379,9 @@ void Scene::LoadDebugScene()
 
 	AddInteraction(L"Exit")->SetScale(Vector3(10,5,2));
 	GetInteraction(L"Exit")->SetPosition(Vector3(0, 0, 7));
+
+	AddMarker(L"Front")->SetRotation(Vector3(0,XM_PI,0));
+	GetMarker(L"Front")->SetPosition(Vector3(0, 0, 5));
 
 	RefreshInstanceBuffers();
 
@@ -399,7 +444,37 @@ void Scene::RemoveInteraction(const std::wstring& name)
 			interactions.erase(it);
 			break;
 		}
-		
+	}
+}
+
+Marker* Scene::AddMarker(std::wstring name)
+{
+	Marker* searchResult = GetMarker(name);
+
+	if (searchResult != nullptr) return searchResult;
+
+	markers.push_back(Marker(name));
+	return &(*(markers.end() - 1));
+}
+
+Marker* Scene::GetMarker(std::wstring name)
+{
+	std::vector<Marker>::iterator it;
+	for (it = markers.begin(); it != markers.end(); ++it) {
+		if (wcscmp((*it).GetName().c_str(), name.c_str()) == 0) return &(*it);
+	}
+
+	return nullptr;
+}
+
+void Scene::RemoveMarker(const std::wstring& name)
+{
+	std::vector<Marker>::iterator it;
+	for (it = markers.begin(); it != markers.end(); ++it) {
+		if (wcscmp((*it).GetName().c_str(), name.c_str()) == 0) {
+			markers.erase(it);
+			break;
+		}
 	}
 }
 
@@ -445,6 +520,7 @@ void Scene::RefreshInstanceBuffers()
 {
 	if (mode == SCENE_EDITOR) {
 		editorData->interactionsModel->ResetInstanceBuffer(deviceRes);
+		editorData->markersModel->ResetInstanceBuffer(deviceRes);
 	}
 
 	std::vector<Material>::iterator it;
@@ -538,6 +614,7 @@ void Scene::Im()
 
 	std::map<Interaction*, SceneEditorInteractionData*>::iterator iterInteraction;
 	std::map<GameEntity*, SceneEditorEntityData*>::iterator iterEntity;
+	std::map<Marker*, SceneEditorMarkerData*>::iterator iterMarker;
 
 	if (ImGui::CollapsingHeader("General")) {
 		ImGui::Text("Id : ");
@@ -591,8 +668,6 @@ void Scene::Im()
 		ImPlot3D::PlotLine("Direction", x, y, z, 2);
 		ImPlot3D::EndPlot();
 	}
-
-
 
 	if (ImGui::CollapsingHeader("Objects")) {
 		ImGui::Text("Entities count : ");
@@ -884,8 +959,98 @@ void Scene::Im()
 	if (ImGui::CollapsingHeader("Markers")) {
 		ImGui::Text("Markers count : ");
 		ImGui::SameLine();
-		ImGui::Text(std::to_string(0).c_str());
+		ImGui::Text(std::to_string(editorData->content->markers.size()).c_str());
 		ImGui::Checkbox("Draw Markers", &editorData->drawMarkers);
+
+		ImGui::InputText("Label", editorData->newMarker, 64);
+		ImGui::SameLine();
+		if (ImGui::Button("Add New")) {
+			wca = toWChar(editorData->newMarker);
+
+			if (strlen(editorData->newMarker) > 0 && !GetMarker(wca)) {
+				AddMarker(wca);
+				RefreshInstanceBuffers();
+				RegenerateSceneEditorData();
+				ImGui::End();
+				return;
+			}
+			else {
+				ImGui::OpenPopup("ErrorCreateMarker");
+			}
+			delete[] wca;
+		}
+
+
+		for (iterMarker = editorData->content->markers.begin(); iterMarker != editorData->content->markers.end(); ++iterMarker) {
+			ImGui::PushID(iterMarker->first);
+			if (ImGui::CollapsingHeader("Marker")) {
+
+				ImGui::Text("Name : ");
+				ImGui::SameLine();
+				ca = toChar(iterMarker->first->GetName().c_str());
+				ImGui::Text(ca);
+				delete[] ca;
+
+				ImGui::InputText("Name", iterMarker->second->name, 64);
+				ImGui::SameLine();
+				if (ImGui::Button("Rename")) {
+					wca = toWChar(iterMarker->second->name);
+
+					if (strlen(iterMarker->second->name) > 0 && !GetMarker(wca)) {
+						iterMarker->first->SetName(wca);
+					}
+					else {
+						ImGui::OpenPopup("ErrorRenameMarker");
+					}
+					delete[] wca;
+				}
+
+
+				if (ImGui::DragFloat3("Position", iterMarker->second->position, 1.0f, -150.f, 150.0f)) {
+					iterMarker->first->SetPosition(Vector3(iterMarker->second->position));
+					iterMarker->second->previewEntity->SetPosition(Vector3(iterMarker->second->position));
+					RefreshInstanceBuffers();
+				}
+
+				if (ImGui::DragFloat3("Rotation", iterMarker->second->rotation, 0.1f,-XM_2PI, XM_2PI)) {
+					iterMarker->first->SetRotation(Vector3(iterMarker->second->rotation));
+					iterMarker->second->previewEntity->SetRotation(Vector3(iterMarker->second->rotation));
+					RefreshInstanceBuffers();
+				}
+
+
+				if (ImGui::Button("Remove")) {
+					RemoveMarker(iterMarker->first->GetName());
+
+					delete iterMarker->second;
+					editorData->content->markers.erase(iterMarker);
+
+					ImGui::PopID();
+					ImGui::End();
+					RefreshInstanceBuffers();
+					RegenerateSceneEditorData();
+					return;
+				}
+			}
+
+			if (ImGui::BeginPopupModal("ErrorRenameMarker", NULL)) {
+				ImGui::Text("Markers must have distinct non empty names");
+				if (ImGui::Button("Close")) {
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+			ImGui::PopID();
+		}
+
+		if (ImGui::BeginPopupModal("ErrorCreateMarker", NULL)) {
+			ImGui::Text("Markers must have distinct non empty names");
+			if (ImGui::Button("Close")) {
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
 	}
 
 	if (ImGui::CollapsingHeader("Control")) {
@@ -912,7 +1077,7 @@ void Scene::Im()
 	}
 
 	ImGui::End();
-
+#pragma endregion
 }
 
 void Scene::RegenerateSceneEditorData()
@@ -974,7 +1139,30 @@ void Scene::RegenerateSceneEditorData()
 		editorData->content->interactions[&(*itInter)]->previewEntity->SetPosition((*itInter).GetPosition());
 		editorData->content->interactions[&(*itInter)]->previewEntity->SetScale((*itInter).GetScale());
 	}
+	editorData->interactionsModel->ResetInstanceBuffer(deviceRes);
 
+	editorData->markersModel->RemoveAllEntities(false);
+	std::vector<Marker>::iterator itMarker;
+	for (itMarker = markers.begin(); itMarker != markers.end(); ++itMarker) {
+		editorData->content->markers[&(*itMarker)] = new SceneEditorMarkerData();
+
+		ca = toChar((*itMarker).GetName().c_str());
+		strcpy(editorData->content->markers[&(*itMarker)]->name, ca);
+		delete[] ca;
+
+		editorData->content->markers[&(*itMarker)]->rotation[0] = (*itMarker).GetRotation().x;
+		editorData->content->markers[&(*itMarker)]->rotation[1] = (*itMarker).GetRotation().y;
+		editorData->content->markers[&(*itMarker)]->rotation[2] = (*itMarker).GetRotation().z;
+		editorData->content->markers[&(*itMarker)]->position[0] = (*itMarker).GetPosition().x;
+		editorData->content->markers[&(*itMarker)]->position[1] = (*itMarker).GetPosition().y;
+		editorData->content->markers[&(*itMarker)]->position[2] = (*itMarker).GetPosition().z;
+
+
+		editorData->content->markers[&(*itMarker)]->previewEntity = editorData->markersModel->AddEntity((*itMarker).GetName());
+		editorData->content->markers[&(*itMarker)]->previewEntity->SetPosition((*itMarker).GetPosition());
+		editorData->content->markers[&(*itMarker)]->previewEntity->SetRotation((*itMarker).GetRotation());
+	}
+	editorData->markersModel->ResetInstanceBuffer(deviceRes);
 		
 	std::vector<Material>::iterator itMat;
 	std::vector<GameModel>::iterator itModel;
@@ -1001,7 +1189,6 @@ void Scene::RegenerateSceneEditorData()
 			}
 		}
 	}
-#pragma endregion
 }
 
 void Scene::ClearCurrentSceneEditorDataContent()
@@ -1024,6 +1211,15 @@ void Scene::ClearCurrentSceneEditorDataContent()
 			++itr2;
 		}
 		editorData->content->interactions.clear();
+
+		std::map<Marker*, SceneEditorMarkerData*>::iterator itr3 = editorData->content->markers.begin();
+		while (itr3 != editorData->content->markers.end())
+		{
+			// found it - delete it
+			delete itr3->second;
+			++itr3;
+		}
+		editorData->content->markers.clear();
 
 		delete editorData->content;
 	}
