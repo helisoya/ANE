@@ -80,7 +80,7 @@ public:
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
 	void UpdateBuffer(DeviceResources* deviceRes) {
-		deviceRes->GetD3DDeviceContext()->UpdateSubresource(buffer.Get(), 0, nullptr, &data, 0, 0);
+		deviceRes->GetD3DDeviceContext()->UpdateSubresource(buffer.Get(), 0, nullptr, data.data(), 0, 0);
 	}
 
 	/// <summary>

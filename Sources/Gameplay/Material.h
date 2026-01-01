@@ -31,8 +31,8 @@ public:
 	/// Draws the models linked to this material
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
-	/// <param name="useInstancing">Use instancing (False will draw all models one by one)</param>
-	void Draw(DeviceResources* deviceRes, bool useInstancing = false);
+	/// <param name="useInstancing">Allow instancing (False will draw all models one by one)</param>
+	void Draw(DeviceResources* deviceRes, bool allowInstancing = false);
 
 	/// <summary>
 	/// Adds a model to the material
@@ -53,6 +53,12 @@ public:
 	/// </summary>
 	/// <returns>Every models linked to this material</returns>
 	std::vector<GameModel>& GetModels();
+
+	/// <summary>
+	/// Regenerates the models instance buffers
+	/// </summary>
+	/// /// <param name="deviceRes">The game's device resources</param>
+	void RegenerateModelsInstanceBuffers(DeviceResources* deviceRes);
 
 	/// <summary>
 	/// Removes an entity from a model's list

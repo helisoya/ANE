@@ -167,6 +167,11 @@ public:
 	void RemoveMaterial(const std::wstring& materialId);
 
 	/// <summary>
+	/// Refreshs all instance buffers
+	/// </summary>
+	void RefreshInstanceBuffers();
+
+	/// <summary>
 	/// Updates the ImGui UI (Scene Editor)
 	/// </summary>
 	void Im();

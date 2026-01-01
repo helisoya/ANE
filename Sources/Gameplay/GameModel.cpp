@@ -177,12 +177,12 @@ void GameModel::LoadFromOBJ(std::wstring &filePath, DeviceResources* deviceRes)
 }
 
 
-void GameModel::Draw(DeviceResources* deviceRes, bool isInstanced) {
+void GameModel::Draw(DeviceResources* deviceRes, bool allowInstancing) {
 	auto gpuRes = DefaultResources::Get();
 	std::vector<GameEntity>::iterator it;
 
 
-	if (!isInstanced) {
+	if (!allowInstancing || entities.size() < INSTANCING_THRESHOLD) {
 		if (vb.Size() == 0) return;
 		// If not instanced, draw normaly
 
@@ -199,7 +199,6 @@ void GameModel::Draw(DeviceResources* deviceRes, bool isInstanced) {
 	}
 	else {
 		// If instanced, add the instance buffer to the vertex buffer, then draw
-		ResetInstanceBuffer(deviceRes);
 		
 		UINT strides[2] = { sizeof(VertexLayout_PositionNormalUV), sizeof(Vector4)*4 };
 		UINT offsets[2] = { 0, 0 };
@@ -233,6 +232,7 @@ void GameModel::ResetInstanceBuffer(DeviceResources* deviceRes)
 		instbuffer.data.push_back(Vector4(transposed.m[2]));
 		instbuffer.data.push_back(Vector4(transposed.m[3]));
 	}
+
 	instbuffer.Create(deviceRes);
 }
 

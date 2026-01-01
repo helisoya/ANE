@@ -17,12 +17,12 @@ void Material::Create(DeviceResources* deviceRes) {
 	texture.Create(deviceRes);
 }
 
-void Material::Draw(DeviceResources* deviceRes, bool isInstanced) {
+void Material::Draw(DeviceResources* deviceRes, bool allowInstancing) {
 	texture.Apply(deviceRes);
 
 	std::vector<GameModel>::iterator it;
 	for (it = gameModels.begin(); it != gameModels.end(); ++it) {
-		(*it).Draw(deviceRes, isInstanced);
+		(*it).Draw(deviceRes, allowInstancing);
 	}
 }
 
@@ -39,6 +39,14 @@ GameModel* Material::GetModel(std::wstring modelId)
 std::vector<GameModel>& Material::GetModels()
 {
 	return gameModels;
+}
+
+void Material::RegenerateModelsInstanceBuffers(DeviceResources* deviceRes)
+{
+	std::vector<GameModel>::iterator it;
+	for (it = gameModels.begin(); it != gameModels.end(); ++it) {
+		it->ResetInstanceBuffer(deviceRes);
+	}
 }
 
 GameModel* Material::AddModel(std::wstring modelID, DeviceResources* deviceRes)

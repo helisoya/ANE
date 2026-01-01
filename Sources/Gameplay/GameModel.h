@@ -18,6 +18,8 @@ private:
 
 	std::vector<GameEntity> entities;
 
+	static const UINT INSTANCING_THRESHOLD = 5;
+
 public:
 
 	/// <summary>
@@ -53,8 +55,8 @@ public:
 	/// Draws the model
 	/// </summary>
 	/// <param name="deviceRes">The game's device resources</param>
-	/// <param name="useInstancing">Use instancing (False will draw all models one by one)</param>
-	void Draw(DeviceResources* deviceRes, bool useInstancing = false);
+	/// <param name="useInstancing">Allow instancing (False will draw all models one by one)</param>
+	void Draw(DeviceResources* deviceRes, bool allowInstancing = false);
 
 	/// <summary>
 	/// Resets the instance buffer's positions

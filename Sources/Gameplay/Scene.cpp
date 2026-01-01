@@ -42,18 +42,17 @@ void Scene::Generate(DeviceResources* deviceRes, GameMode mode) {
 
 void Scene::Draw(DeviceResources* deviceRes) {
 
-	bool useInstancing = false;
-	if (mode == SCENE_EDITOR && editorData->useInstancing) useInstancing = true;
+	bool allowInstancing = (mode != SCENE_EDITOR || editorData->allowInstancing);
 
 	if (mode != SCENE_EDITOR || editorData->drawEntities) {
 		std::vector<Material>::iterator it;
 		for (it = materials.begin(); it != materials.end(); ++it) {
-			it->Draw(deviceRes, useInstancing);
+			it->Draw(deviceRes, allowInstancing);
 		}
 	}
 	if (mode == SCENE_EDITOR && editorData->drawInteractions) {
 		editorData->interactionsTexture->Apply(deviceRes);
-		editorData->interactionsModel->Draw(deviceRes, useInstancing);
+		editorData->interactionsModel->Draw(deviceRes, allowInstancing);
 	}
 }
 
@@ -301,6 +300,8 @@ void Scene::LoadScene(std::wstring filepath)
 
 	fin.close();
 
+	RefreshInstanceBuffers();
+
 	if (mode == SCENE_EDITOR) {
 		RegenerateSceneEditorData();
 	}
@@ -336,6 +337,8 @@ void Scene::LoadDebugScene()
 
 	AddInteraction(L"Exit")->SetScale(Vector3(10,5,2));
 	GetInteraction(L"Exit")->SetPosition(Vector3(0, 0, 7));
+
+	RefreshInstanceBuffers();
 
 	if (mode == SCENE_EDITOR) {
 		RegenerateSceneEditorData();
@@ -438,6 +441,18 @@ void Scene::RemoveMaterial(const std::wstring& materialId)
 	}
 }
 
+void Scene::RefreshInstanceBuffers()
+{
+	if (mode == SCENE_EDITOR) {
+		editorData->interactionsModel->ResetInstanceBuffer(deviceRes);
+	}
+
+	std::vector<Material>::iterator it;
+	for (it = materials.begin(); it != materials.end(); ++it) {
+		it->RegenerateModelsInstanceBuffers(deviceRes);
+	}
+}
+
 void Scene::Im()
 {
 
@@ -452,7 +467,7 @@ void Scene::Im()
 	ImGui::Begin("Scenes", NULL);
 	ImGui::SetWindowSize(ImVec2(400, 600), ImGuiCond_Always);
 
-	ImGui::Checkbox("Allow Instancing (Rendering)", &editorData->useInstancing);
+	ImGui::Checkbox("Allow Instancing (Rendering)", &editorData->allowInstancing);
 
 	if (ImGui::CollapsingHeader("Scenes")) {
 		for (int i = 0; i < editorData->scenes.size(); i++) {
@@ -491,6 +506,7 @@ void Scene::Im()
 			delete[] wca;
 			wca = toWChar(editorData->newObjectModel);
 			material->AddModel(wca, deviceRes)->AddEntity(L"NewEntity");
+			material->RegenerateModelsInstanceBuffers(deviceRes);
 			delete[] wca;
 
 			ImGui::End();
@@ -622,14 +638,17 @@ void Scene::Im()
 				}
 				if (ImGui::DragFloat3("Position", iterEntity->second->position, 1.0f, -150.f, 150.0f)) {
 					iterEntity->first->SetPosition(Vector3(iterEntity->second->position));
+					RefreshInstanceBuffers();
 				}
 
 				if (ImGui::DragFloat3("Rotation", iterEntity->second->rotation, 0.25f, -XM_2PI, XM_2PI)) {
 					iterEntity->first->SetRotation(Vector3(iterEntity->second->rotation));
+					RefreshInstanceBuffers();
 				}
 
 				if (ImGui::DragFloat3("Scale", iterEntity->second->scale, 1.0f, 0.1f, 50)) {
 					iterEntity->first->SetScale(Vector3(iterEntity->second->scale));
+					RefreshInstanceBuffers();
 				}
 
 				if (ImGui::Button("Remove")) {
@@ -653,6 +672,7 @@ void Scene::Im()
 
 					ImGui::PopID();
 					ImGui::End();
+					RefreshInstanceBuffers();
 					RegenerateSceneEditorData();
 					return;
 				}
@@ -684,6 +704,7 @@ void Scene::Im()
 
 			if (strlen(editorData->newInteraction) > 0 && !GetInteraction(wca)) {
 				AddInteraction(wca);
+				RefreshInstanceBuffers();
 				RegenerateSceneEditorData();
 				ImGui::End();
 				return;
@@ -761,11 +782,13 @@ void Scene::Im()
 				if (ImGui::DragFloat3("Position", iterInteraction->second->position, 1.0f, -150.f, 150.0f)) {
 					iterInteraction->first->SetPosition(Vector3(iterInteraction->second->position));
 					iterInteraction->second->previewEntity->SetPosition(Vector3(iterInteraction->second->position));
+					RefreshInstanceBuffers();
 				}
 
 				if (ImGui::DragFloat3("Scale", iterInteraction->second->scale, 1.0f, 0.1f, 50)) {
 					iterInteraction->first->SetScale(Vector3(iterInteraction->second->scale));
 					iterInteraction->second->previewEntity->SetScale(Vector3(iterInteraction->second->scale));
+					RefreshInstanceBuffers();
 				}
 
 				if (ImGui::Checkbox("Interactable", &iterInteraction->second->interactable)) {
@@ -781,6 +804,7 @@ void Scene::Im()
 
 					ImGui::PopID();
 					ImGui::End();
+					RefreshInstanceBuffers();
 					RegenerateSceneEditorData();
 					return;
 				}
